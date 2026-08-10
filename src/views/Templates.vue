@@ -1,24 +1,22 @@
 <template>
   <div class="templates-container">
-
-
-
-
-    <!-- 模板列表 -->
     <div class="template-list">
-      <h3>{{ t('templates.templateList') }}</h3>
+      <h3 class="section-title">{{ t('templates.templateList') }}</h3>
+      <div v-if="loading" class="loading-placeholder">
+        <el-skeleton :rows="6" animated />
+      </div>
       <el-table 
+        v-else
         :data="templateList" 
         style="width: 100%" 
-        border
+        empty-text=""
       >
         <el-table-column prop="vmid" label="vmid" width="120" align="center"></el-table-column>
         <el-table-column prop="name" :label="t('templates.name')" align="center"></el-table-column>
         <el-table-column :label="t('templates.action')" width="200" align="center">
           <template #default="scope">
             <el-button 
-              type="danger" 
-              size="small"
+              class="delete-btn"
               @click="handleDeleteSingleTemplate(scope.row)"
             >
               {{ t('templates.delete') }}
@@ -40,7 +38,6 @@ export default {
   name: 'Templates',
   setup() {
     const { t } = useI18n()
-    // 模拟任务列表数据
     const taskList = [
       {
         queue: '1',
@@ -62,75 +59,55 @@ export default {
       }
     ]
 
-    // 模板列表数据
     const templateList = ref([])
+    const loading = ref(true)
     let pollingTimer = null
 
-    // 获取模板列表数据 - 智能更新策略
     const fetchTemplateList = async () => {
       try {
-        // 使用axios直接调用，baseURL已在main.js中配置
         const response = await axios.get('/tasks/templates')
         const result = response.data
         
         if (result.code === 0 && result.data && Array.isArray(result.data)) {
           const newTemplates = result.data.sort((a, b) => a.vmid - b.vmid)
           
-          // 智能更新策略：只更新有变化的数据
           if (templateList.value.length === 0) {
-            // 初次加载，直接设置
             templateList.value = newTemplates
-            // console.log('✅ 初次加载模板数据:', newTemplates.length, '条记录')
           } else {
-            // 智能更新：创建新的数组，保持未变化数据的引用
             const updatedList = []
             const currentTemplatesMap = new Map(templateList.value.map(t => [t.vmid, t]))
             const newTemplatesMap = new Map(newTemplates.map(t => [t.vmid, t]))
             
-            // 遍历新数据，保持未变化数据的引用
             for (const newTemplate of newTemplates) {
               const currentTemplate = currentTemplatesMap.get(newTemplate.vmid)
               
               if (currentTemplate && isDataChanged(currentTemplate, newTemplate)) {
-                // 数据有变化，更新该记录
                 updatedList.push(newTemplate)
-                // console.log(`🔄 模板数据更新: vmid=${newTemplate.vmid}, name=${newTemplate.name}`)
               } else if (currentTemplate && !isDataChanged(currentTemplate, newTemplate)) {
-                // 数据未变化，保持原引用
                 updatedList.push(currentTemplate)
-                // console.log(`🔒 模板数据未变化: vmid=${newTemplate.vmid}（保持引用）`)
               } else {
-                // 新增数据
                 updatedList.push(newTemplate)
-                // console.log(`➕ 新增模板: vmid=${newTemplate.vmid}, name=${newTemplate.name}`)
               }
             }
             
-            // 检查是否有删除的数据
             const newVmids = new Set(newTemplates.map(t => t.vmid))
             const deletedCount = templateList.value.length - updatedList.length
-            if (deletedCount > 0) {
-              // console.log(`❌ 检测到 ${deletedCount} 个已删除的模板`)
-            }
             
             templateList.value = updatedList
-            // console.log(`🔄 智能更新完成: 总计 ${updatedList.length} 条记录 (新增/更新/删除: ${newTemplates.length - currentTemplatesMap.size}/${Object.keys(newTemplatesMap).length - currentTemplatesMap.size}/${deletedCount})`)
           }
         } else {
           console.warn('⚠️ API返回数据格式不正确:', result)
-          // API返回格式不正确时设置为空数组，不显示模拟数据
           templateList.value = []
         }
       } catch (error) {
         console.warn('❌ API调用异常:', error.message)
-        // 网络异常或其他错误时设置为空数组，不显示模拟数据
         templateList.value = []
+      } finally {
+        loading.value = false
       }
     }
 
-    // 检查两个模板对象是否有数据变化
     const isDataChanged = (oldTemplate, newTemplate) => {
-      // 比较关键字段是否发生变化
       return oldTemplate.name !== newTemplate.name ||
              oldTemplate.status !== newTemplate.status ||
              oldTemplate.description !== newTemplate.description ||
@@ -138,13 +115,11 @@ export default {
              oldTemplate.updateTime !== newTemplate.updateTime
     }
 
-    // 启动轮询
     const startPolling = () => {
-      fetchTemplateList() // 立即获取一次数据
-      pollingTimer = setInterval(fetchTemplateList, 5000) // 每5秒轮询一次
+      fetchTemplateList()
+      pollingTimer = setInterval(fetchTemplateList, 5000)
     }
 
-    // 停止轮询
     const stopPolling = () => {
       if (pollingTimer) {
         clearInterval(pollingTimer)
@@ -152,40 +127,31 @@ export default {
       }
     }
     
-    // 页面可见性处理函数
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        // 页面不可见时，停止轮询
         stopPolling()
       } else {
-        // 页面可见时，重新启动轮询
         if (!pollingTimer) {
           startPolling()
         }
       }
     }
 
-    // 组件挂载时启动轮询
     onMounted(() => {
       startPolling()
-      // 添加页面可见性监听
       document.addEventListener('visibilitychange', handleVisibilityChange)
     })
 
-    // 组件卸载前停止轮询
     onBeforeUnmount(() => {
       stopPolling()
-      // 清理页面可见性监听器
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     })
 
-    // 处理单个模板删除
     const handleDeleteSingleTemplate = async (template) => {
       try {
         const vmid = template.vmid
         const templateName = template.name
         
-        // 确认删除对话框
         await ElMessageBox.confirm(
           t('dialog.confirmDeleteTemplate', { name: templateName }),
           t('dialog.confirmDelete'),
@@ -196,12 +162,9 @@ export default {
           }
         )
         
-        // 调用删除接口，设置超时时间为15秒
         await axios.delete(`/vm/template/${vmid}`, { timeout: 15000 })
-        // console.log(`✅ 成功删除单个模板: vmid=${vmid}, name=${templateName}`)
         ElMessage.success(t('dialog.deleteTemplateSuccess', { name: templateName }))
         
-        // 删除成功后刷新列表
         await fetchTemplateList()
         
       } catch (error) {
@@ -214,6 +177,7 @@ export default {
     
     return {
       templateList,
+      loading,
       handleDeleteSingleTemplate,
       t
     }
@@ -223,29 +187,135 @@ export default {
 
 <style scoped>
 .templates-container {
-  background: white;
+  background: #f8f7fc;
   padding: 20px;
-  border-radius: 4px;
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  --fs-base: clamp(15px, 1.05vw, 20px);
+  --fs-header: clamp(16px, 1.15vw, 22px);
+  --fs-card-title: clamp(18px, 1.3vw, 26px);
 }
 
 .template-list {
-  margin-top: 20px;
+  margin-bottom: 16px;
 }
 
-.template-list h3 {
-  margin-bottom: 15px;
-  color: #333;
-  font-size: 16px;
+.loading-placeholder {
+  background: #fcfcfd;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  border-radius: 4px;
+  padding: clamp(16px, 1.5vw, 24px);
 }
 
-/* 响应式布局 */
+.section-title {
+  font-size: var(--fs-card-title);
+  font-weight: 600;
+  color: #5c6bc0;
+  margin: 0 0 12px 0;
+  padding: 0;
+}
+
+.templates-container :deep(.el-table) {
+  width: 100% !important;
+  font-size: var(--fs-base);
+  background: #fcfcfd;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  border-radius: 4px;
+  transition: none !important;
+}
+
+.templates-container :deep(.el-table *) {
+  transition: none !important;
+}
+
+.templates-container :deep(.el-table th.el-table__cell) {
+  background: rgba(92, 107, 192, 0.06) !important;
+}
+
+.templates-container :deep(.el-table th .cell) {
+  font-size: var(--fs-header);
+  font-weight: 600;
+  color: #909399;
+}
+
+.templates-container :deep(.el-table td .cell) {
+  font-size: var(--fs-base);
+}
+
+.templates-container :deep(.el-table__header-wrapper),
+.templates-container :deep(.el-table__body-wrapper) {
+  width: 100% !important;
+}
+
+.templates-container :deep(.el-table th.el-table__cell),
+.templates-container :deep(.el-table td.el-table__cell) {
+  padding-top: clamp(6px, 0.6vw, 12px);
+  padding-bottom: clamp(6px, 0.6vw, 12px);
+  text-align: center;
+  vertical-align: middle;
+  border-right: 1px solid rgba(92, 107, 192, 0.15) !important;
+  border-bottom: 1px solid rgba(92, 107, 192, 0.15) !important;
+}
+
+.templates-container :deep(.el-table th.el-table__cell:last-child),
+.templates-container :deep(.el-table td.el-table__cell:last-child) {
+  border-right: none !important;
+}
+
+.templates-container :deep(.el-table__body tr:last-child td.el-table__cell) {
+  border-bottom: none !important;
+}
+
+.templates-container :deep(.el-table .cell) {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.templates-container :deep(.delete-btn) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+  font-size: var(--fs-base);
+  transition: all 0.2s;
+}
+
+.templates-container :deep(.delete-btn:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.templates-container :deep(.delete-btn:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
 @media (max-width: 768px) {
+  .templates-container {
+    padding: 10px;
+    --fs-base: 13px;
+    --fs-header: 14px;
+    --fs-card-title: 16px;
+  }
+
   .template-list {
     overflow-x: auto;
   }
   
-  .el-table {
-    min-width: 600px;
+  .templates-container :deep(.el-table) {
+    min-width: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .templates-container {
+    --fs-base: 12px;
+    --fs-header: 13px;
+    --fs-card-title: 15px;
   }
 }
 </style>

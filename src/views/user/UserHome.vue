@@ -41,10 +41,11 @@
       v-model="showChangePasswordDialog"
       width="500px"
       :close-on-click-modal="false"
+      draggable
       top="50%"
     >
       <div class="password-form">
-        <el-form :model="passwordForm" label-width="160px">
+        <el-form :model="passwordForm" label-width="auto" label-position="left">
           <el-form-item :label="t('userHome.newPassword')">
             <el-input
               v-model="passwordForm.newPassword"
@@ -392,13 +393,22 @@ export default {
 <style scoped>
 .user-home-container {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px;
+  padding: clamp(12px, 2vw, 40px);
   box-sizing: border-box;
+  --fs-title: clamp(18px, 2.2vw, 30px);
+  --fs-name: clamp(15px, 1.6vw, 22px);
+  --fs-status: clamp(13px, 1.2vw, 18px);
+  --fs-btn: clamp(13px, 1.2vw, 18px);
+  --fs-footer: clamp(13px, 1.2vw, 18px);
+  --fs-id: clamp(11px, 0.9vw, 15px);
+  --pad-card: clamp(12px, 1.5vw, 30px);
+  --pad-item: clamp(8px, 1vw, 16px);
+  --gap-item: clamp(8px, 1vw, 20px);
 }
 
 .vm-list-card {
@@ -407,59 +417,59 @@ export default {
   background: #f5f5f5;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  padding: 30px;
+  padding: var(--pad-card);
 }
 
 .card-title {
   text-align: center;
-  font-size: 24px;
+  font-size: var(--fs-title);
   font-weight: bold;
   color: #303133;
-  margin: 0 0 30px 0;
+  margin: 0 0 clamp(10px, 1.2vw, 24px) 0;
 }
 
 .vm-items {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--gap-item);
 }
 
 .vm-item {
   border: 1px solid #e4e7ed;
   border-radius: 8px;
-  padding: 16px;
+  padding: var(--pad-item);
 }
 
 .vm-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: clamp(6px, 0.8vw, 14px);
 }
 
 .vm-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .vm-name {
-  font-size: 18px;
+  font-size: var(--fs-name);
   font-weight: bold;
-  color: #409eff;
-  background: #ecf5ff;
-  padding: 4px 12px;
+  color: white;
+  background: #a5aed8;
+  padding: clamp(2px, 0.4vw, 4px) clamp(6px, 0.8vw, 12px);
   border-radius: 4px;
 }
 
 .vm-id {
-  font-size: 12px;
+  font-size: var(--fs-id);
   color: #909399;
 }
 
 .vm-status {
-  font-size: 14px;
-  padding: 4px 12px;
+  font-size: var(--fs-status);
+  padding: clamp(2px, 0.4vw, 4px) clamp(6px, 0.8vw, 12px);
   border-radius: 4px;
 }
 
@@ -477,49 +487,52 @@ export default {
 
 .vm-actions {
   display: flex;
-  gap: 10px;
+  gap: clamp(4px, 0.6vw, 10px);
   flex-wrap: wrap;
 }
 
 .action-btn {
-  padding: 8px 20px;
-  background: #7eb3ff;
-  color: white;
-  border: none;
+  flex: 1;
+  min-width: 0;
+  padding: clamp(4px, 0.6vw, 8px) clamp(10px, 1.4vw, 20px);
+  background: rgba(90, 158, 255, 0.3);
+  color: #3a6fc4;
+  border: 1px solid rgba(90, 158, 255, 0.4);
   border-radius: 4px;
-  font-size: 14px;
+  font-size: var(--fs-btn);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .action-btn:hover {
   background: #5a9eff;
+  color: white;
 }
 
 .card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 30px;
+  margin-top: clamp(12px, 1.5vw, 28px);
 }
 
 .footer-left {
   display: flex;
-  gap: 12px;
+  gap: clamp(6px, 0.8vw, 12px);
 }
 
 .footer-right {
   display: flex;
-  gap: 12px;
+  gap: clamp(6px, 0.8vw, 12px);
 }
 
 .footer-btn {
-  padding: 8px 24px;
+  padding: clamp(4px, 0.6vw, 8px) clamp(12px, 1.6vw, 24px);
   background: white;
   color: #606266;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: var(--fs-footer);
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -544,6 +557,12 @@ export default {
 
 .password-form {
   padding: 20px 0;
+}
+
+.password-form :deep(.el-form-item__label) {
+  width: auto !important;
+  white-space: nowrap;
+  text-align: left;
 }
 
 :deep(.el-dialog) {

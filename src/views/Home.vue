@@ -54,7 +54,7 @@
           <template #title>{{ menuTexts.docs }}</template>
         </el-menu-item>
         <el-menu-item index="/logout">
-          <el-icon><ArrowRight /></el-icon>
+          <el-icon><SwitchButton /></el-icon>
           <template #title>{{ menuTexts.logout }}</template>
         </el-menu-item>
       </el-menu>
@@ -89,7 +89,7 @@ import {
   Setting,
   CaretRight,
   CaretLeft,
-  ArrowRight,
+  SwitchButton,
   CopyDocument,
   Document,
   Monitor,
@@ -105,7 +105,7 @@ export default {
     Setting,
     CaretRight,
     CaretLeft,
-    ArrowRight,
+    SwitchButton,
     CopyDocument,
     Document,
     Monitor,
@@ -250,6 +250,11 @@ export default {
   box-shadow: 2px 0 6px rgba(92, 107, 192, 0.3);
   transition: width 0.3s ease;
   overflow: hidden;
+  --sidebar-fs-menu: clamp(16px, 1.15vw, 22px);
+  --sidebar-fs-logo: clamp(18px, 1.3vw, 26px);
+  --sidebar-fs-logo-short: clamp(18px, 1.3vw, 26px);
+  --sidebar-fs-logo-desc: clamp(12px, 0.8vw, 16px);
+  --sidebar-fs-collapse: clamp(18px, 1.3vw, 26px);
 }
 
 .sidebar.collapsed {
@@ -275,22 +280,25 @@ export default {
 .logo h3 {
   color: white;
   margin: 0;
-  font-size: 18px;
+  font-size: var(--sidebar-fs-logo);
   font-weight: 600;
   width: 100%;
-  text-align: center;
+  text-align: left;
+  padding-left: 49px;
   line-height: 1.2;
 }
 
 .logo-desc {
   color: rgba(255, 255, 255, 0.65);
   margin: 0;
-  font-size: 12px;
+  font-size: var(--sidebar-fs-logo-desc);
+  text-align: left;
+  padding-left: 49px;
 }
 
 .logo-short {
   color: #409EFF;
-  font-size: 18px;
+  font-size: var(--sidebar-fs-logo-short);
   font-weight: bold;
   display: flex;
   align-items: center;
@@ -314,7 +322,7 @@ export default {
   z-index: 10;
   color: #fff;
   border: none;
-  font-size: 20px;
+  font-size: var(--sidebar-fs-collapse);
   transition: all 0.3s ease;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -334,7 +342,7 @@ export default {
   height: 56px;
   line-height: 56px;
   padding: 0 20px;
-  font-size: 14px;
+  font-size: var(--sidebar-fs-menu);
   will-change: background-color;
   transform: translateZ(0);
 }
@@ -356,6 +364,7 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  min-width: 0;
   transition: margin-left 0.3s ease;
 }
 
@@ -366,10 +375,14 @@ export default {
 /* 内容区域样式 */
 .el-main {
   flex: 1;
-  padding: 24px;
+  padding: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   background-color: #f0f2f5;
   margin: 0 !important;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
 }
 
 /* 响应式布局 */

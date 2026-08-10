@@ -48,7 +48,7 @@ const routes = [
     path: '/home',
     name: 'Home',
     component: Home,
-    redirect: '/home/vmlist',
+    redirect: '/home/dashboard',
     children: [
       {
         path: 'dashboard',
@@ -66,13 +66,13 @@ const routes = [
         path: 'vm-management',
         name: 'VMManagement',
         component: VMGroup,
-        meta: { title: '虚拟机组管理' }
+        meta: { title: '虚拟机组' }
       },
       {
         path: 'vmlist',
         name: 'VMList',
         component: VMList,
-        meta: { title: '虚拟机列表' }
+        meta: { title: '虚拟机' }
       },
       {
         path: 'users',
@@ -129,8 +129,8 @@ router.beforeEach((to, from, next) => {
       const titleMap = {
         '仪表盘': 'Dashboard',
         '模板管理': 'Template Management',
-        '虚拟机组管理': 'VM Group Management',
-        '虚拟机列表': 'VM List',
+        '虚拟机组': 'VM Group',
+        '虚拟机': 'VM List',
         '用户管理': 'User Management',
         '系统设置': 'System Settings',
         '日志事件': 'Log Events',
@@ -150,8 +150,8 @@ router.beforeEach((to, from, next) => {
       const titleMap = {
         '仪表盘': 'ダッシュボード',
         '模板管理': 'テンプレート管理',
-        '虚拟机组管理': 'VMグループ管理',
-        '虚拟机列表': 'VMリスト',
+        '虚拟机组': 'VMグループ',
+        '虚拟机': 'VMリスト',
         '用户管理': 'ユーザー管理',
         '系统设置': 'システム設定',
         '日志事件': 'ログイベント',
@@ -171,8 +171,8 @@ router.beforeEach((to, from, next) => {
       const titleMap = {
         '仪表盘': '儀表盤',
         '模板管理': '模板管理',
-        '虚拟机组管理': '虛擬機組管理',
-        '虚拟机列表': '虛擬機列表',
+        '虚拟机组': '虛擬機組',
+        '虚拟机': '虛擬機列表',
         '用户管理': '用戶管理',
         '系统设置': '系統設定',
         '日志事件': '日誌事件',

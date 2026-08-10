@@ -4,12 +4,12 @@
     <div class="toolbar">
       <div class="toolbar-group">
         <span class="toolbar-label">{{ t('toolbar.groupOperation') }}</span>
-        <button class="btn btn-info" @click="showAddDialog">{{ t('toolbar.add') }}</button>
-        <button class="btn btn-primary" @click="showEditDialog" :disabled="selectedGroups.length !== 1">{{ t('toolbar.edit') }}</button>
-        <button class="btn btn-success" @click="applyGroup" :disabled="selectedGroups.length === 0">{{ t('toolbar.apply') }}</button>
-        <button class="btn btn-danger" @click="restoreGroup" :disabled="selectedGroups.length === 0">{{ t('toolbar.restore') }}</button>
-        <button class="btn btn-danger" @click="rebuildGroup" :disabled="selectedGroups.length === 0">{{ t('toolbar.rebuild') }}</button>
-        <button class="btn btn-danger" @click="deleteGroups" :disabled="selectedGroups.length === 0">{{ t('toolbar.delete') }}</button>
+        <el-button class="btn btn-info" @click="showAddDialog">{{ t('toolbar.add') }}</el-button>
+        <el-button class="btn btn-primary" :class="{ 'not-operable': selectedGroups.length !== 1 }" @click="selectedGroups.length === 1 && showEditDialog()">{{ t('toolbar.edit') }}</el-button>
+        <el-button class="btn btn-success" :class="{ 'not-operable': selectedGroups.length === 0 }" @click="selectedGroups.length > 0 && applyGroup()">{{ t('toolbar.apply') }}</el-button>
+        <el-button class="btn btn-danger" :class="{ 'not-operable': selectedGroups.length === 0 }" @click="selectedGroups.length > 0 && restoreGroup()">{{ t('toolbar.restore') }}</el-button>
+        <el-button class="btn btn-danger" :class="{ 'not-operable': selectedGroups.length === 0 }" @click="selectedGroups.length > 0 && rebuildGroup()">{{ t('toolbar.rebuild') }}</el-button>
+        <el-button class="btn btn-danger" :class="{ 'not-operable': selectedGroups.length === 0 }" @click="selectedGroups.length > 0 && deleteGroups()">{{ t('toolbar.delete') }}</el-button>
       </div>
     </div>
 
@@ -19,8 +19,10 @@
       :title="t('dialog.addVMGroup')"
       width="700px"
       :close-on-click-modal="false"
+      draggable
+      class="vm-group-dialog"
     >
-      <el-form :model="form" label-width="180px">
+      <el-form :model="form" label-width="auto" label-position="left">
         <el-form-item :label="t('form.vmGroup')" required>
           <el-input v-model="form.vm_group" :placeholder="t('form.vmGroupPlaceholder')" />
         </el-form-item>
@@ -138,8 +140,10 @@
       :title="t('dialog.editVMGroup')"
       width="700px"
       :close-on-click-modal="false"
+      draggable
+      class="vm-group-dialog"
     >
-      <el-form :model="form" label-width="180px">
+      <el-form :model="form" label-width="auto" label-position="left">
         <el-form-item :label="t('form.vmGroup')" required>
           <el-input v-model="form.vm_group" :placeholder="t('form.vmGroupPlaceholder')" :disabled="true" />
         </el-form-item>
@@ -252,9 +256,9 @@
     </el-dialog>
 
     <!-- 虚拟机组列表标题 -->
-    <div class="table-title">
+    <h3 class="section-title">
       {{ t('groupList.title') }}
-    </div>
+    </h3>
 
     <!-- 选中信息 -->
     <div class="selected-info" v-if="selectedGroups.length > 0">
@@ -283,7 +287,7 @@
             </td>
             <td>{{ group.vm_group }}</td>
             <td>{{ group.is_snapshot === '1' ? t('form.enabled') : t('form.disabled') }}</td>
-            <td>{{ group.description || '-' }}</td>
+            <td>{{ group.description }}</td>
           </tr>
         </tbody>
       </table>
@@ -972,6 +976,7 @@ export default {
             ElMessage.error(t('message.groupApplyFailed', { error: error.message }))
           }
         }
+        selectedGroups.value = []
       } catch (error) {
         console.error('应用虚拟机组失败:', error.message)
         ElMessage.error(t('message.groupApplyFailed', { error: error.message }))
@@ -1003,6 +1008,7 @@ export default {
             ElMessage.error(t('message.groupRestoreFailed', { error: error.message }))
           }
         }
+        selectedGroups.value = []
       } catch (error) {
         console.error('还原虚拟机组失败:', error.message)
         ElMessage.error(t('message.groupRestoreFailed', { error: error.message }))
@@ -1034,6 +1040,7 @@ export default {
             ElMessage.error(t('message.groupRebuildFailed', { error: error.message }))
           }
         }
+        selectedGroups.value = []
       } catch (error) {
         console.error('重建虚拟机组失败:', error.message)
         ElMessage.error(t('message.groupRebuildFailed', { error: error.message }))
@@ -1294,6 +1301,7 @@ export default {
         if (result.code === 0) {
           ElMessage.success(t('message.editSuccess'))
           editDialogVisible.value = false
+          selectedGroups.value = []
           await fetchGroupList()
           resetForm()
         } else {
@@ -1369,81 +1377,121 @@ export default {
 
 <style scoped>
 .vm-group-container {
-  background: white;
+  background: #f8f7fc;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  --fs-base: clamp(15px, 1.05vw, 20px);
+  --fs-header: clamp(16px, 1.15vw, 22px);
+  --fs-card-title: clamp(18px, 1.3vw, 26px);
+  --fs-toolbar: clamp(13px, 0.9vw, 17px);
 }
 
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 15px;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #fcfcfd;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  border-radius: 4px;
 }
 
 .toolbar-group {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .toolbar-label {
   font-weight: 600;
-  color: #555;
-  font-size: 13px;
+  color: #909399;
+  font-size: var(--fs-header);
   white-space: nowrap;
+  margin-right: 4px;
 }
 
-/* 表格标题 */
-.table-title {
-  font-size: 16px;
+.section-title {
+  font-size: var(--fs-card-title);
   font-weight: 600;
-  color: #333;
-  margin: 20px 0 10px 0;
+  color: #5c6bc0;
+  margin: 0 0 12px 0;
+  padding: 0;
+}
+
+.table-title {
+  display: none;
 }
 
 .selected-info {
-  margin-bottom: 10px;
-  padding: 8px 12px;
-  background: #e7f3ff;
-  border: 1px solid #b3d7ff;
+  margin-bottom: 12px;
+  padding: clamp(6px, 0.5vw, 10px) clamp(10px, 0.8vw, 14px);
+  background: rgba(92, 107, 192, 0.08);
+  border: 1px solid rgba(92, 107, 192, 0.25);
   border-radius: 4px;
-  color: #004085;
-  font-size: 13px;
+  color: #5c6bc0;
+  font-size: var(--fs-toolbar);
 }
 
 .table-container {
   overflow-x: auto;
   overflow-y: visible;
-  margin-bottom: 20px;
   width: 100%;
 }
 
 .vm-group-table {
   width: 100%;
-  border-collapse: collapse;
-  border: 1px solid #ddd;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  border-radius: 4px;
+  background: #fcfcfd;
+  font-size: var(--fs-base);
+  overflow: hidden;
 }
 
 .vm-group-table th,
 .vm-group-table td {
-  padding: 10px 15px;
-  text-align: left;
-  border: 1px solid #ddd;
+  padding-top: clamp(6px, 0.6vw, 12px);
+  padding-bottom: clamp(6px, 0.6vw, 12px);
+  padding-left: clamp(10px, 0.8vw, 16px);
+  padding-right: clamp(10px, 0.8vw, 16px);
+  text-align: center;
+  vertical-align: middle;
+  border-right: 1px solid rgba(92, 107, 192, 0.15);
+  border-bottom: 1px solid rgba(92, 107, 192, 0.15);
+}
+
+.vm-group-table th:last-child,
+.vm-group-table td:last-child {
+  border-right: none;
+}
+
+.vm-group-table tr:last-child td {
+  border-bottom: none;
 }
 
 .vm-group-table th {
-  background: white;
+  background: rgba(92, 107, 192, 0.06);
   font-weight: 600;
-  color: #333;
+  color: #909399;
+  font-size: var(--fs-header);
 }
 
-/* 列宽设置 */
+.vm-group-table td {
+  font-size: var(--fs-base);
+}
+
+.vm-group-table input[type="checkbox"] {
+  width: clamp(14px, 1vw, 18px);
+  height: clamp(14px, 1vw, 18px);
+  cursor: pointer;
+  accent-color: #5c6bc0;
+}
+
 .col-checkbox {
   width: 80px;
   text-align: center;
@@ -1462,62 +1510,190 @@ export default {
   text-align: center;
 }
 
-.btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
+.vm-group-container :deep(.toolbar .el-button.btn) {
+  font-size: var(--fs-header);
+  transition: all 0.2s;
 }
 
-.btn-primary {
-  background: #007bff;
-  color: white;
-}
-
-.btn-secondary {
-  background: #6c757d;
-  color: white;
-}
-
-.btn-danger {
-  background: #dc3545;
-  color: white;
-}
-
-.btn-warning {
-  background: #fd7e14;
-  color: white;
-}
-
-.btn-info {
-  background: #17a2b8;
-  color: white;
-}
-
-.btn-success {
-  background: #28a745;
-  color: white;
-}
-
-.btn:disabled {
-  opacity: 0.6;
+.vm-group-container :deep(.toolbar .el-button.btn.not-operable) {
   cursor: not-allowed;
+  pointer-events: auto;
 }
 
-/* 响应式设计 */
+.vm-group-container :deep(.toolbar .el-button.btn-info),
+.vm-group-container :deep(.toolbar .el-button.btn-primary) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.vm-group-container :deep(.toolbar .el-button.btn-info:hover),
+.vm-group-container :deep(.toolbar .el-button.btn-primary:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.vm-group-container :deep(.toolbar .el-button.btn-info:active),
+.vm-group-container :deep(.toolbar .el-button.btn-primary:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
+.vm-group-container :deep(.toolbar .el-button.btn-success) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.vm-group-container :deep(.toolbar .el-button.btn-success:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.vm-group-container :deep(.toolbar .el-button.btn-success:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
+.vm-group-container :deep(.toolbar .el-button.btn-danger) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.vm-group-container :deep(.toolbar .el-button.btn-danger:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.vm-group-container :deep(.toolbar .el-button.btn-danger:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
+.vm-group-container :deep(.toolbar .el-button.btn-warning) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.vm-group-container :deep(.toolbar .el-button.btn-warning:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.vm-group-container :deep(.toolbar .el-button.btn-warning:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
 @media (max-width: 768px) {
-  .toolbar {
-    flex-direction: column;
-    gap: 10px;
+  .vm-group-container {
+    padding: 10px;
+    --fs-base: 13px;
+    --fs-header: 14px;
+    --fs-card-title: 16px;
+    --fs-toolbar: 12px;
   }
-  
+
+  .toolbar {
+    gap: 8px;
+    padding: 10px;
+  }
+
   .toolbar-group {
     flex-wrap: wrap;
   }
   
   .vm-group-table {
-    min-width: 600px;
+    min-width: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vm-group-container {
+    --fs-base: 12px;
+    --fs-header: 13px;
+    --fs-card-title: 15px;
+    --fs-toolbar: 11px;
+  }
+}
+</style>
+
+<style>
+.vm-group-dialog {
+  --d-fs-base: clamp(15px, 1.05vw, 20px);
+  --d-fs-header: clamp(16px, 1.15vw, 22px);
+}
+
+.vm-group-dialog .el-dialog__title {
+  font-size: var(--d-fs-header);
+}
+
+.vm-group-dialog .el-dialog__body {
+  font-size: var(--d-fs-base);
+}
+
+.vm-group-dialog .el-form-item__label {
+  font-size: var(--d-fs-base);
+  position: relative;
+  padding-left: 12px;
+  width: auto !important;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.vm-group-dialog .el-form-item.is-required .el-form-item__label::before {
+  position: absolute;
+  left: 0;
+}
+
+.vm-group-dialog .el-input__inner,
+.vm-group-dialog .el-textarea__inner {
+  font-size: var(--d-fs-base);
+}
+
+.vm-group-dialog .el-input__inner::placeholder,
+.vm-group-dialog .el-textarea__inner::placeholder {
+  font-size: var(--d-fs-base);
+}
+
+.vm-group-dialog .el-select__selected-item,
+.vm-group-dialog .el-select__placeholder {
+  font-size: var(--d-fs-base);
+}
+
+.vm-group-dialog .el-select__input {
+  font-size: var(--d-fs-base);
+}
+
+.vm-group-dialog .dialog-footer .el-button {
+  font-size: var(--d-fs-base);
+}
+
+.vm-group-dialog .el-form-item__error {
+  font-size: clamp(12px, 0.85vw, 14px);
+}
+
+@media (max-width: 768px) {
+  .vm-group-dialog {
+    --d-fs-base: 13px;
+    --d-fs-header: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vm-group-dialog {
+    --d-fs-base: 12px;
+    --d-fs-header: 13px;
   }
 }
 </style>

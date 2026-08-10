@@ -4,10 +4,10 @@
     <div class="toolbar">
       <div class="toolbar-group">
         <span class="toolbar-label">{{ t('toolbar.userGroupOperation') }}</span>
-        <button class="btn btn-info" @click="showAddDialog">{{ t('toolbar.add') }}</button>
-        <button class="btn btn-primary" @click="showEditDialog" :disabled="selectedUsers.length !== 1">{{ t('toolbar.edit') }}</button>
-        <button class="btn btn-danger" @click="deleteUsers" :disabled="selectedUsers.length === 0">{{ t('toolbar.delete') }}</button>
-        <button class="btn btn-warning" @click="toggleUserStatus" :disabled="selectedUsers.length === 0">{{ getToggleButtonText() }}</button>
+        <el-button class="btn btn-info" @click="showAddDialog">{{ t('toolbar.add') }}</el-button>
+        <el-button class="btn btn-primary" :class="{ 'not-operable': selectedUsers.length !== 1 }" @click="selectedUsers.length === 1 && showEditDialog()">{{ t('toolbar.edit') }}</el-button>
+        <el-button class="btn btn-danger" :class="{ 'not-operable': selectedUsers.length === 0 }" @click="selectedUsers.length > 0 && deleteUsers()">{{ t('toolbar.delete') }}</el-button>
+        <el-button class="btn btn-warning" :class="{ 'not-operable': selectedUsers.length === 0 }" @click="selectedUsers.length > 0 && toggleUserStatus()">{{ getToggleButtonText() }}</el-button>
       </div>
     </div>
 
@@ -17,8 +17,10 @@
       :title="t('dialog.addUserGroup')"
       width="700px"
       :close-on-click-modal="false"
+      draggable
+      class="users-dialog"
     >
-      <el-form :model="form" label-width="120px">
+      <el-form :model="form" label-width="auto" label-position="left">
         <el-form-item :label="t('form.userGroup')" required>
           <el-input v-model="form.user_group" :placeholder="t('form.userGroupPlaceholder')" />
         </el-form-item>
@@ -46,8 +48,10 @@
       :title="t('dialog.editUserGroup')"
       width="700px"
       :close-on-click-modal="false"
+      draggable
+      class="users-dialog"
     >
-      <el-form :model="form" label-width="120px">
+      <el-form :model="form" label-width="auto" label-position="left">
         <el-form-item :label="t('form.userGroup')" required>
           <el-input v-model="form.user_group" :placeholder="t('form.userGroupPlaceholder')" :disabled="true" />
         </el-form-item>
@@ -75,8 +79,10 @@
       :title="t('dialog.batchAddUsers')"
       width="700px"
       :close-on-click-modal="false"
+      draggable
+      class="users-dialog"
     >
-      <el-form :model="userForm" label-width="150px">
+      <el-form :model="userForm" label-width="auto" label-position="left">
         <el-form-item :label="t('form.userPrefix')" required>
           <el-input v-model="userForm.userPrefix" :placeholder="t('form.userPrefixPlaceholder')" />
         </el-form-item>
@@ -167,8 +173,10 @@
       :title="t('dialog.editUser')"
       width="700px"
       :close-on-click-modal="false"
+      draggable
+      class="users-dialog"
     >
-      <el-form :model="userForm" label-width="150px">
+      <el-form :model="userForm" label-width="auto" label-position="left">
         <el-form-item :label="t('form.username')" required>
           <el-input v-model="userForm.username" :placeholder="t('form.usernamePlaceholder')" :disabled="true" />
         </el-form-item>
@@ -253,8 +261,10 @@
       :title="t('toolbar.updatePassword')"
       width="500px"
       :close-on-click-modal="false"
+      draggable
+      class="users-dialog"
     >
-      <el-form :model="passwordForm" label-width="120px">
+      <el-form :model="passwordForm" label-width="auto" label-position="left">
         <el-form-item :label="t('form.username')" required>
           <el-input v-model="passwordForm.username" :placeholder="t('form.usernamePlaceholder')" :disabled="true" />
         </el-form-item>
@@ -309,9 +319,9 @@
               />
             </td>
             <td>{{ user.userGroup }}</td>
-            <td>{{ user.vmGroups || '-' }}</td>
+            <td>{{ user.vmGroups }}</td>
             <td>{{ user.disabled === '0' ? t('form.enabled') : t('form.disabled') }}</td>
-            <td>{{ user.description || '-' }}</td>
+            <td>{{ user.description }}</td>
           </tr>
         </tbody>
       </table>
@@ -321,12 +331,12 @@
     <div class="toolbar">
       <div class="toolbar-group">
         <span class="toolbar-label">{{ t('toolbar.userOperation') }}</span>
-        <button class="btn btn-info" @click="showAddUserDialog">{{ t('toolbar.add') }}</button>
-        <button class="btn btn-primary" @click="showEditUserDialog" :disabled="selectedUserDetails.length !== 1">{{ t('toolbar.edit') }}</button>
-        <button class="btn btn-danger" @click="deleteUser" :disabled="selectedUserDetails.length === 0">{{ t('toolbar.delete') }}</button>
-        <button class="btn btn-warning" @click="toggleUserDetailStatus" :disabled="selectedUserDetails.length === 0">{{ getToggleUserDetailButtonText() }}</button>
-        <button class="btn btn-info" @click="showChangePasswordDialog" :disabled="selectedUserDetails.length !== 1">{{ t('toolbar.updatePassword') }}</button>
-        <button class="btn btn-success" @click="unlockUser" :disabled="selectedUserDetails.length !== 1">{{ t('toolbar.unlockUser') }}</button>
+        <el-button class="btn btn-info" @click="showAddUserDialog">{{ t('toolbar.add') }}</el-button>
+        <el-button class="btn btn-primary" :class="{ 'not-operable': selectedUserDetails.length !== 1 }" @click="selectedUserDetails.length === 1 && showEditUserDialog()">{{ t('toolbar.edit') }}</el-button>
+        <el-button class="btn btn-danger" :class="{ 'not-operable': selectedUserDetails.length === 0 }" @click="selectedUserDetails.length > 0 && deleteUser()">{{ t('toolbar.delete') }}</el-button>
+        <el-button class="btn btn-warning" :class="{ 'not-operable': selectedUserDetails.length === 0 }" @click="selectedUserDetails.length > 0 && toggleUserDetailStatus()">{{ getToggleUserDetailButtonText() }}</el-button>
+        <el-button class="btn btn-info" :class="{ 'not-operable': selectedUserDetails.length !== 1 }" @click="selectedUserDetails.length === 1 && showChangePasswordDialog()">{{ t('toolbar.updatePassword') }}</el-button>
+        <el-button class="btn btn-success" :class="{ 'not-operable': selectedUserDetails.length !== 1 }" @click="selectedUserDetails.length === 1 && unlockUser()">{{ t('toolbar.unlockUser') }}</el-button>
       </div>
     </div>
 
@@ -509,7 +519,7 @@ export default {
             userGroup: item.user_group,
             description: item.description || '',
             disabled: item.disabled,
-            vmGroups: item.bind_vm_group ? item.bind_vm_group.join(', ') : '-'
+            vmGroups: item.bind_vm_group ? item.bind_vm_group.join(', ') : ''
           }))
           // console.log('处理后的用户组列表:', userList.value)
         } else {
@@ -549,7 +559,7 @@ export default {
           // console.log('后端返回的用户数据:', result.data);
           // 格式化时间函数
           const formatTime = (timeString) => {
-            if (!timeString) return '-';
+            if (!timeString) return '';
             const date = new Date(timeString);
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -566,8 +576,8 @@ export default {
             disabled: item.disabled,
             status: item.status,
             lastLogin: formatTime(item.last_login),
-            loginIp: item.login_ip || '-',
-            clientType: item.client_type || '-',
+            loginIp: item.login_ip,
+            clientType: item.client_type,
             publicGateway: item.public_gateway === '1' ? t('form.yes') : t('form.no'),
             directConnect: item.direct === '1',
             audioRedirect: item.audio_redirect === '1',
@@ -859,6 +869,7 @@ export default {
 
         if (result.code === 0) {
           ElMessage.success(t('message.unlockSuccess', { username: selectedUsername }))
+          selectedUserDetails.value = []
         } else {
           ElMessage.error(t('message.unlockFailed', { username: selectedUsername }))
         }
@@ -931,6 +942,7 @@ export default {
         if (result.code === 0) {
           ElMessage.success(t('message.passwordChangeSuccess'))
           changePasswordDialogVisible.value = false
+          selectedUserDetails.value = []
           resetPasswordForm()
         } else {
           ElMessage.error(result.message || t('message.passwordUpdateFailed'))
@@ -964,8 +976,8 @@ export default {
         if (result.code === 0) {
           ElMessage.success(t('message.userEditSuccess'))
           editUserDialogVisible.value = false
+          selectedUserDetails.value = []
           resetUserForm()
-          // 刷新用户列表
           await fetchUserDetailList()
         } else {
           ElMessage.error(result.message || t('message.userEditFailed'))
@@ -1149,6 +1161,7 @@ export default {
         if (result.code === 0) {
           ElMessage.success(t('message.editSuccess'))
           editDialogVisible.value = false
+          selectedUsers.value = []
           await fetchUserList()
           resetForm()
         } else {
@@ -1239,6 +1252,7 @@ export default {
         
         // 操作完成后刷新列表
         await fetchUserList()
+        selectedUsers.value = []
       } catch (error) {
         console.error('切换用户组状态失败:', error.message)
         ElMessage.error(t('message.userGroupStatusChangeFailed', { userGroup: selectedUsers.value.join(', '), error: error.message }))
@@ -1295,6 +1309,7 @@ export default {
         
         // 操作完成后刷新列表
         await fetchUserDetailList()
+        selectedUserDetails.value = []
       } catch (error) {
         console.error('切换用户状态失败:', error.message)
         ElMessage.error(t('message.userStatusChangeFailed', { username: selectedUserDetails.value.join(', '), error: error.message }))
@@ -1417,52 +1432,57 @@ export default {
 
 <style scoped>
 .users-container {
-  background: white;
+  background: #f8f7fc;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  --fs-base: clamp(15px, 1.05vw, 20px);
+  --fs-header: clamp(16px, 1.15vw, 22px);
+  --fs-card-title: clamp(18px, 1.3vw, 26px);
+  --fs-toolbar: clamp(13px, 0.9vw, 17px);
 }
 
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 15px;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #fcfcfd;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  border-radius: 4px;
 }
 
 .toolbar-group {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .toolbar-label {
   font-weight: 600;
-  color: #555;
-  font-size: 13px;
+  color: #909399;
+  font-size: var(--fs-header);
   white-space: nowrap;
 }
 
-/* 表格标题 */
 .table-title {
-  font-size: 16px;
+  font-size: var(--fs-card-title);
   font-weight: 600;
-  color: #333;
-  margin: 20px 0 10px 0;
+  color: #5c6bc0;
+  margin: 20px 0 12px 0;
 }
 
 .selected-info {
-  margin-bottom: 10px;
-  padding: 8px 12px;
-  background: #e7f3ff;
-  border: 1px solid #b3d7ff;
+  margin-bottom: 12px;
+  padding: 8px 14px;
+  background: rgba(92, 107, 192, 0.08);
+  border: 1px solid rgba(92, 107, 192, 0.2);
   border-radius: 4px;
-  color: #004085;
-  font-size: 13px;
+  color: #5c6bc0;
+  font-size: var(--fs-base);
 }
 
 .table-container {
@@ -1470,30 +1490,58 @@ export default {
   overflow-y: visible;
   margin-bottom: 20px;
   width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  background: #fcfcfd;
 }
 
 .users-table {
   width: 100%;
-  border-collapse: collapse;
-  border: 1px solid #ddd;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fcfcfd;
+  font-size: var(--fs-base);
 }
 
 .users-table th,
 .users-table td {
-  padding: 10px 15px;
-  text-align: left;
-  border: 1px solid #ddd;
+  padding-top: clamp(6px, 0.6vw, 12px);
+  padding-bottom: clamp(6px, 0.6vw, 12px);
+  padding-left: clamp(10px, 0.8vw, 16px);
+  padding-right: clamp(10px, 0.8vw, 16px);
+  text-align: center;
+  vertical-align: middle;
+  border-right: 1px solid rgba(92, 107, 192, 0.15);
+  border-bottom: 1px solid rgba(92, 107, 192, 0.15);
+}
+
+.users-table th:last-child,
+.users-table td:last-child {
+  border-right: none;
+}
+
+.users-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .users-table th {
-  background-color: #f8f9fa;
+  background-color: rgba(92, 107, 192, 0.06);
   font-weight: 600;
-  color: #333;
-  border-bottom: 2px solid #ddd;
+  color: #909399;
+  border-bottom: 1px solid rgba(92, 107, 192, 0.25);
+  font-size: var(--fs-header);
 }
 
-.users-table tr:hover {
-  background-color: #f5f5f5;
+.users-table tbody tr:hover {
+  background-color: rgba(92, 107, 192, 0.05);
+}
+
+.users-table input[type="checkbox"] {
+  accent-color: #5c6bc0;
+  width: clamp(14px, 1vw, 18px);
+  height: clamp(14px, 1vw, 18px);
+  cursor: pointer;
 }
 
 .col-checkbox {
@@ -1545,9 +1593,8 @@ export default {
 }
 
 .col-remark {
-  width: 40px;
-  min-width: 40px;
-  max-width: 40px;
+  width: 200px;
+  min-width: 80px;
 }
 
 .remark-container {
@@ -1571,9 +1618,9 @@ export default {
 }
 
 .expand-btn {
-  color: #007bff;
+  color: #5c6bc0;
   margin-left: 5px;
-  font-size: 12px;
+  font-size: var(--fs-toolbar);
 }
 
 .expand-btn:hover {
@@ -1625,61 +1672,197 @@ export default {
   text-align: center;
 }
 
-/* 按钮样式 */
-.btn {
-  padding: 6px 12px;
+.users-container :deep(.toolbar .el-button) {
+  font-size: var(--fs-header);
+  padding: clamp(6px, 0.5vw, 10px) clamp(12px, 1vw, 20px);
   border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  font-size: 13px;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
 }
 
-.btn:hover {
-  opacity: 0.8;
-  transform: translateY(-1px);
-}
-
-.btn:active {
-  transform: translateY(0);
-}
-
-.btn-info {
-  background-color: #17a2b8;
-  color: white;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-success {
-  background-color: #28a745;
-  color: white;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-warning {
-  background-color: #ffc107;
-  color: #212529;
-}
-
-.btn:disabled {
-  opacity: 0.5;
+.users-container :deep(.toolbar .el-button.btn.not-operable) {
   cursor: not-allowed;
-  transform: none;
+  pointer-events: auto;
 }
 
-/* 对话框样式 */
+.users-container :deep(.toolbar .el-button.btn-info),
+.users-container :deep(.toolbar .el-button.btn-primary) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.users-container :deep(.toolbar .el-button.btn-info:hover),
+.users-container :deep(.toolbar .el-button.btn-primary:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.users-container :deep(.toolbar .el-button.btn-info:active),
+.users-container :deep(.toolbar .el-button.btn-primary:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
+.users-container :deep(.toolbar .el-button.btn-success) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.users-container :deep(.toolbar .el-button.btn-success:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.users-container :deep(.toolbar .el-button.btn-success:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
+.users-container :deep(.toolbar .el-button.btn-danger) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.users-container :deep(.toolbar .el-button.btn-danger:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.users-container :deep(.toolbar .el-button.btn-danger:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
+.users-container :deep(.toolbar .el-button.btn-warning) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.users-container :deep(.toolbar .el-button.btn-warning:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.users-container :deep(.toolbar .el-button.btn-warning:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .users-container {
+    padding: 10px;
+    --fs-base: 13px;
+    --fs-header: 14px;
+    --fs-card-title: 16px;
+    --fs-toolbar: 12px;
+  }
+
+  .toolbar {
+    gap: 8px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .users-container {
+    padding: 6px;
+    --fs-base: 12px;
+    --fs-header: 13px;
+    --fs-card-title: 15px;
+    --fs-toolbar: 11px;
+  }
+
+  .toolbar {
+    gap: 6px;
+    padding: 8px;
+  }
+}
+</style>
+
+<style>
+.users-dialog {
+  --d-fs-base: clamp(15px, 1.05vw, 20px);
+  --d-fs-header: clamp(16px, 1.15vw, 22px);
+}
+
+.users-dialog .el-dialog__title {
+  font-size: var(--d-fs-header);
+}
+
+.users-dialog .el-dialog__body {
+  font-size: var(--d-fs-base);
+}
+
+.users-dialog .el-form-item__label {
+  font-size: var(--d-fs-base);
+  position: relative;
+  padding-left: 12px;
+  width: auto !important;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.users-dialog .el-form-item.is-required .el-form-item__label::before {
+  position: absolute;
+  left: 0;
+}
+
+.users-dialog .el-input__inner,
+.users-dialog .el-textarea__inner {
+  font-size: var(--d-fs-base);
+}
+
+.users-dialog .el-input__inner::placeholder,
+.users-dialog .el-textarea__inner::placeholder {
+  font-size: var(--d-fs-base);
+}
+
+.users-dialog .el-select__selected-item,
+.users-dialog .el-select__placeholder {
+  font-size: var(--d-fs-base);
+}
+
+.users-dialog .el-select__input {
+  font-size: var(--d-fs-base);
+}
+
+.users-dialog .dialog-footer .el-button {
+  font-size: var(--d-fs-base);
+}
+
+.users-dialog .el-form-item__error {
+  font-size: clamp(12px, 0.85vw, 14px);
+}
+
+@media (max-width: 768px) {
+  .users-dialog {
+    --d-fs-base: 13px;
+    --d-fs-header: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .users-dialog {
+    --d-fs-base: 12px;
+    --d-fs-header: 13px;
+  }
 }
 </style>

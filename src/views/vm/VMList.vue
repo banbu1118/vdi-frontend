@@ -5,34 +5,31 @@
     <div class="toolbar">
       <div class="toolbar-group">
         <span class="toolbar-label">{{ t('toolbar.powerOperation') }}</span>
-        <button class="btn btn-primary" @click="startVMs" :disabled="selectedVMs.length === 0">{{ t('toolbar.start') }}</button>
-        <button class="btn btn-warning" @click="stopVMs" :disabled="selectedVMs.length === 0">{{ t('toolbar.stop') }}</button>
-        <button class="btn btn-info" @click="rebootVMs" :disabled="selectedVMs.length === 0">{{ t('toolbar.reboot') }}</button>
-        <button class="btn btn-danger" @click="resetVMs" :disabled="selectedVMs.length === 0">{{ t('toolbar.reset') }}</button>
+        <el-button class="btn btn-primary" :class="{ 'not-operable': selectedVMs.length === 0 }" @click="selectedVMs.length > 0 && startVMs()">{{ t('toolbar.start') }}</el-button>
+        <el-button class="btn btn-warning" :class="{ 'not-operable': selectedVMs.length === 0 }" @click="selectedVMs.length > 0 && stopVMs()">{{ t('toolbar.stop') }}</el-button>
+        <el-button class="btn btn-info" :class="{ 'not-operable': selectedVMs.length === 0 }" @click="selectedVMs.length > 0 && rebootVMs()">{{ t('toolbar.reboot') }}</el-button>
+        <el-button class="btn btn-danger" :class="{ 'not-operable': selectedVMs.length === 0 }" @click="selectedVMs.length > 0 && resetVMs()">{{ t('toolbar.reset') }}</el-button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-label">{{ t('toolbar.snapshotOperation') }}</span>
-        <button class="btn btn-warning" @click="revertSnapshot" :disabled="selectedVMs.length === 0">{{ t('toolbar.revert') }}</button>
+        <el-button class="btn btn-warning" :class="{ 'not-operable': selectedVMs.length === 0 }" @click="selectedVMs.length > 0 && revertSnapshot()">{{ t('toolbar.revert') }}</el-button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-label">{{ t('toolbar.vmOperation') }}</span>
-        <button class="btn btn-danger" @click="deleteVMs" :disabled="selectedVMs.length === 0">{{ t('toolbar.delete') }}</button>
+        <el-button class="btn btn-danger" :class="{ 'not-operable': selectedVMs.length === 0 }" @click="selectedVMs.length > 0 && deleteVMs()">{{ t('toolbar.delete') }}</el-button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-label">{{ t('toolbar.configOperation') }}</span>
-        <button class="btn btn-primary" @click="showEditNameDialog" :disabled="selectedVMs.length !== 1">{{ t('toolbar.rename') }}</button>
-        <button class="btn btn-primary" @click="showSetStaticIPDialog" :disabled="selectedVMs.length !== 1">{{ t('toolbar.setStaticIP') }}</button>
-        <button class="btn btn-primary" @click="showEditUserDialog" :disabled="selectedVMs.length !== 1">{{ t('toolbar.updateUser') }}</button>
-        <button class="btn btn-primary" @click="showEditPasswordDialog" :disabled="selectedVMs.length !== 1">{{ t('toolbar.updatePassword') }}</button>
-        <button class="btn btn-primary" @click="showUpdateRDPPortDialog" :disabled="selectedVMs.length !== 1">{{ t('toolbar.updateRDPPort') }}</button>
+        <el-button class="btn btn-primary" :class="{ 'not-operable': selectedVMs.length !== 1 }" @click="selectedVMs.length === 1 && showEditNameDialog()">{{ t('toolbar.rename') }}</el-button>
+        <el-button class="btn btn-primary" :class="{ 'not-operable': selectedVMs.length !== 1 }" @click="selectedVMs.length === 1 && showSetStaticIPDialog()">{{ t('toolbar.setStaticIP') }}</el-button>
+        <el-button class="btn btn-primary" :class="{ 'not-operable': selectedVMs.length !== 1 }" @click="selectedVMs.length === 1 && showEditUserDialog()">{{ t('toolbar.updateUser') }}</el-button>
+        <el-button class="btn btn-primary" :class="{ 'not-operable': selectedVMs.length !== 1 }" @click="selectedVMs.length === 1 && showEditPasswordDialog()">{{ t('toolbar.updatePassword') }}</el-button>
+        <el-button class="btn btn-primary" :class="{ 'not-operable': selectedVMs.length !== 1 }" @click="selectedVMs.length === 1 && showUpdateRDPPortDialog()">{{ t('toolbar.updateRDPPort') }}</el-button>
       </div>
       <div class="toolbar-group">
         <span class="toolbar-label">{{ t('toolbar.userBinding') }}</span>
-        <button class="btn btn-success" @click="showBindUserDialog" :disabled="selectedVMs.length !== 1">{{ t('toolbar.bindUser') }}</button>
-        <button class="btn btn-warning" @click="unbindUser" :disabled="selectedVMs.length !== 1">{{ t('toolbar.unbindUser') }}</button>
-        <button class="btn btn-secondary" @click="refreshVMs" :disabled="refreshLoading">
-          {{ refreshLoading ? t('toolbar.refreshing') : t('toolbar.refresh') }}
-        </button>
+        <el-button class="btn btn-success" :class="{ 'not-operable': selectedVMs.length !== 1 }" @click="selectedVMs.length === 1 && showBindUserDialog()">{{ t('toolbar.bindUser') }}</el-button>
+        <el-button class="btn btn-warning" :class="{ 'not-operable': selectedVMs.length !== 1 }" @click="selectedVMs.length === 1 && unbindUser()">{{ t('toolbar.unbindUser') }}</el-button>
       </div>
     </div>
 
@@ -48,19 +45,19 @@
       </div>
       <div v-else-if="error" class="error-state">
         <p>{{ t('vmList.loadFailed') }}: {{ error }}</p>
-        <button class="btn btn-primary" @click="refreshVMs">{{ t('vmList.retry') }}</button>
+        <el-button class="btn btn-primary" @click="refreshVMs">{{ t('vmList.retry') }}</el-button>
       </div>
       <table v-else class="vm-table">
          <thead>
            <tr>
-             <th>
+             <th class="col-chk sticky-col-1">
                <input 
                  type="checkbox" 
                  @change="toggleSelectAll"
                  :checked="selectedVMs.length === vmList.length && vmList.length > 0"
                />
              </th>
-             <th @click="handleSort('vmid')" class="sortable">
+             <th @click="handleSort('vmid')" class="sortable sticky-col-2">
                vmid <span class="sort-indicator" v-html="getSortIndicator('vmid')"></span>
              </th>
              <th @click="handleSort('name')" class="sortable">
@@ -71,9 +68,6 @@
              </th>
              <th @click="handleSort('user_name')" class="sortable">
                user_name <span class="sort-indicator" v-html="getSortIndicator('user_name')"></span>
-             </th>
-             <th @click="handleSort('node')" class="sortable">
-               node <span class="sort-indicator" v-html="getSortIndicator('node')"></span>
              </th>
              <th @click="handleSort('ip')" class="sortable">
                ip <span class="sort-indicator" v-html="getSortIndicator('ip')"></span>
@@ -116,59 +110,58 @@
          </thead>
          <tbody>
            <tr v-for="vm in paginatedVMs" :key="vm.vmid">
-             <td>
-               <input 
-                 type="checkbox" 
-                 :value="vm.vmid"
-                 v-model="selectedVMs"
-               />
-             </td>
-             <td>{{ vm.vmid }}</td>
-             <td>{{ vm.name || '-' }}</td>
-             <td>{{ vm.group || '-' }}</td>
-             <td>{{ vm.user_name || '-' }}</td>
-             <td>{{ vm.node || '-' }}</td>
-             <td>{{ vm.ip || '-' }}</td>
-             <td>
-               <span :class="['status-badge', vm.status]">
-                 {{ vm.status || '-' }}
-               </span>
-             </td>
-             <td>{{ vm.vm_user || '-' }}</td>
-             <td>
-               <div class="password-cell">
-                 <span v-if="!vm.showPassword" class="password-mask">* * * * * *</span>
-                 <span v-else class="password-text">{{ vm.vm_password || '-' }}</span>
-                 <el-button
-                   v-if="vm.vm_password"
-                   type="primary"
-                   link
-                   size="small"
-                   @click="vm.showPassword = !vm.showPassword"
-                 >
-                   <el-icon><View v-if="!vm.showPassword" /><Hide v-else /></el-icon>
-                 </el-button>
-                 <el-button
-                   v-if="vm.showPassword && vm.vm_password"
-                   type="primary"
-                   link
-                   size="small"
-                   @click="copyPassword(vm.vm_password)"
-                 >
-                   <el-icon><DocumentCopy /></el-icon>
-                 </el-button>
-               </div>
-             </td>
-             <td>{{ vm.cpu || '-' }}</td>
-             <td>{{ vm.cpus || '-' }}</td>
-             <td>{{ formatMemory(vm.mem) }}</td>
-             <td>{{ formatDisk(vm.disk) }}</td>
-             <td>{{ formatUptime(vm.uptime) }}</td>
-             <td>{{ formatNetwork(vm.netin) }}</td>
-             <td>{{ formatNetwork(vm.netout) }}</td>
-             <td>{{ vm.rdp_port || '-' }}</td>
-             <td>{{ vm.has_snapshot == '1' ? 'Y' : 'N' }}</td>
-           </tr>
+            <td class="col-chk sticky-col-1">
+              <input 
+                type="checkbox" 
+                :value="vm.vmid"
+                v-model="selectedVMs"
+              />
+            </td>
+            <td class="sticky-col-2" title="{{ vm.vmid }}">{{ vm.vmid }}</td>
+            <td class="col-name" :title="vm.name">{{ vm.name }}</td>
+            <td class="col-group" :title="vm.group">{{ vm.group }}</td>
+            <td class="col-user" :title="vm.user_name">{{ vm.user_name }}</td>
+            <td class="col-ip" :title="vm.ip">{{ vm.ip }}</td>
+            <td>
+              <span v-if="vm.status" :class="['status-badge', vm.status]">
+                {{ vm.status }}
+              </span>
+            </td>
+            <td class="col-user" :title="vm.vm_user">{{ vm.vm_user }}</td>
+            <td>
+              <div class="password-cell">
+                <span v-if="!vm.showPassword" class="password-mask">* * * * * *</span>
+                <span v-else class="password-text" :title="vm.vm_password">{{ vm.vm_password }}</span>
+                <el-button
+                  v-if="vm.vm_password"
+                  type="primary"
+                  link
+                  size="small"
+                  @click="vm.showPassword = !vm.showPassword"
+                >
+                  <el-icon><View v-if="!vm.showPassword" /><Hide v-else /></el-icon>
+                </el-button>
+                <el-button
+                  v-if="vm.showPassword && vm.vm_password"
+                  type="primary"
+                  link
+                  size="small"
+                  @click="copyPassword(vm.vm_password)"
+                >
+                  <el-icon><DocumentCopy /></el-icon>
+                </el-button>
+              </div>
+            </td>
+            <td class="col-cpu" :title="vm.cpu">{{ Number(vm.cpu) === 0 ? '0' : Number(vm.cpu).toFixed(4) }}</td>
+            <td class="col-num" :title="vm.cpus">{{ vm.cpus }}</td>
+            <td class="col-num" :title="formatMemory(vm.mem)">{{ formatMemory(vm.mem) }}</td>
+            <td class="col-num" :title="formatDisk(vm.disk)">{{ formatDisk(vm.disk) }}</td>
+            <td class="col-num" :title="formatUptime(vm.uptime)">{{ formatUptime(vm.uptime) }}</td>
+            <td class="col-num" :title="formatNetwork(vm.netin)">{{ formatNetwork(vm.netin) }}</td>
+            <td class="col-num" :title="formatNetwork(vm.netout)">{{ formatNetwork(vm.netout) }}</td>
+            <td class="col-num" :title="vm.rdp_port">{{ vm.rdp_port }}</td>
+            <td class="col-num" :title="vm.has_snapshot">{{ vm.has_snapshot == '1' ? 'Y' : 'N' }}</td>
+          </tr>
          </tbody>
       </table>
       
@@ -180,23 +173,23 @@
 
     <!-- 分页 -->
     <div class="pagination" v-if="totalPages > 1">
-      <button 
+      <el-button 
         class="page-btn" 
         :disabled="currentPage === 1"
         @click="currentPage--"
       >
         {{ t('vmList.previousPage') }}
-      </button>
+      </el-button>
       <span class="page-info">
         {{ t('vmList.pageInfo', { current: currentPage, total: totalPages, count: vmList.length }) }}
       </span>
-      <button 
+      <el-button 
         class="page-btn" 
         :disabled="currentPage === totalPages"
         @click="currentPage++"
       >
         {{ t('vmList.nextPage') }}
-      </button>
+      </el-button>
     </div>
     
     <!-- 绑定用户对话框 -->
@@ -205,6 +198,8 @@
       :title="t('dialog.bindUser')"
       width="500px"
       :close-on-click-modal="false"
+      draggable
+      class="vm-list-dialog"
     >
       <div class="user-list-container">
         <div v-if="usersLoading" class="loading-state">
@@ -245,6 +240,8 @@
       :title="t('dialog.renameVM')"
       width="400px"
       :close-on-click-modal="false"
+      draggable
+      class="vm-list-dialog"
     >
       <div class="dialog-content">
         <el-input
@@ -270,6 +267,8 @@
       :title="t('dialog.setStaticIP')"
       width="500px"
       :close-on-click-modal="false"
+      draggable
+      class="vm-list-dialog"
     >
       <div class="dialog-content">
         <el-form label-position="top" label-width="100px">
@@ -517,13 +516,13 @@ export default {
 
     // 格式化函数
     const formatMemory = (bytes) => {
-      if (!bytes) return '-'
+      if (!bytes) return ''
       const gb = bytes / (1024 * 1024 * 1024)
       return gb >= 1 ? `${gb.toFixed(1)}GB` : `${(bytes / 1024 / 1024).toFixed(0)}MB`
     }
 
     const formatNetwork = (bytes) => {
-      if (!bytes) return '-'
+      if (!bytes) return ''
       const gb = bytes / (1024 * 1024 * 1024)
       return gb >= 1 ? `${gb.toFixed(1)}GB` : `${(bytes / 1024 / 1024).toFixed(0)}MB`
     }
@@ -553,13 +552,13 @@ export default {
     }
 
     const formatDisk = (bytes) => {
-      if (!bytes) return '-'
+      if (!bytes) return ''
       const gb = bytes / (1024 * 1024 * 1024)
       return `${gb.toFixed(0)}GB`
     }
 
     const formatUptime = (seconds) => {
-      if (!seconds) return '-'
+      if (!seconds) return ''
       
       const days = Math.floor(seconds / (24 * 3600))
       const hours = Math.floor((seconds % (24 * 3600)) / 3600)
@@ -702,6 +701,7 @@ export default {
         }
         
         await fetchVMList()
+        selectedVMs.value = []
       } catch (error) {
         console.error('开机失败:', error.message)
         ElMessage.error(t('message.vmStartFailed', { vmid: selectedVMs.value[0] }) + ': ' + error.message)
@@ -726,6 +726,7 @@ export default {
         }
         
         await fetchVMList()
+        selectedVMs.value = []
       } catch (error) {
         console.error('关机失败:', error.message)
         ElMessage.error(t('message.vmStopFailed', { vmid: selectedVMs.value[0] }) + ': ' + error.message)
@@ -750,6 +751,7 @@ export default {
         }
         
         await fetchVMList()
+        selectedVMs.value = []
       } catch (error) {
         console.error('重启失败:', error.message)
         ElMessage.error(t('message.vmRebootFailed', { vmid: selectedVMs.value[0] }) + ': ' + error.message)
@@ -774,6 +776,7 @@ export default {
         }
         
         await fetchVMList()
+        selectedVMs.value = []
       } catch (error) {
         console.error('停止失败:', error.message)
         ElMessage.error(t('message.vmResetFailed', { vmid: selectedVMs.value[0] }) + ': ' + error.message)
@@ -808,6 +811,7 @@ export default {
         }
         
         await fetchVMList()
+        selectedVMs.value = []
       } catch (error) {
         if (error !== 'cancel') {
           console.error('还原失败:', error.message)
@@ -895,6 +899,7 @@ export default {
         // console.log('重命名虚拟机:', currentRenameVMID, '新名称:', vmName)
         const response = await axios.post(`/vm/${currentRenameVMID}/rename`, { newName: vmName })
         await fetchVMList()
+        selectedVMs.value = []
         ElMessage.success(t('message.vmRenameSuccess'))
         renameDialogVisible.value = false
         newVMName.value = ''
@@ -971,6 +976,7 @@ export default {
         // console.log('设置静态IP:', currentStaticIPVMID, staticIPForm.value)
         const response = await axios.post(`/vm/${currentStaticIPVMID}/ip`, staticIPForm.value, { timeout: 120000 })
         await fetchVMList()
+        selectedVMs.value = []
         ElMessage.success(t('message.vmStaticIPSuccess'))
         staticIPDialogVisible.value = false
         // 重置表单
@@ -1021,6 +1027,7 @@ export default {
         const response = await axios.post(`/vm/${vmid}/vmusername`, { vmusername: newUser }, { timeout: 120000 })
         ElMessage.success(t('message.vmUserUpdateSuccess'))
         await fetchVMList()
+        selectedVMs.value = []
       } catch (error) {
         console.error('更新用户名失败:', error.message)
         ElMessage.error(t('message.vmUserUpdateFailed') + ': ' + error.message)
@@ -1054,6 +1061,7 @@ export default {
         const response = await axios.post(`/vm/${vmid}/password`, { vm_user_password: newPassword }, { timeout: 120000 })
         ElMessage.success(t('message.vmPasswordUpdateSuccess'))
         await fetchVMList()
+        selectedVMs.value = []
       } catch (error) {
         console.error('更新密码失败:', error.message)
         ElMessage.error(t('message.vmPasswordUpdateFailed') + ': ' + error.message)
@@ -1101,6 +1109,7 @@ export default {
         const response = await axios.post(`/vm/${vmid}/rdpport`, { rdp_port: newPort }, { timeout: 120000 })
         ElMessage.success(t('message.vmRDPPortUpdateSuccess'))
         await fetchVMList()
+        selectedVMs.value = []
       } catch (error) {
         console.error('更新RDP端口失败:', error.message)
         ElMessage.error(t('message.vmRDPPortUpdateFailed') + ': ' + error.message)
@@ -1164,6 +1173,7 @@ export default {
         await axios.post(`/users/assign-vm/${vmid}`, { username: selectedUsername.value })
         ElMessage.success(t('message.userBindSuccess'))
         await fetchVMList()
+        selectedVMs.value = []
         bindUserDialogVisible.value = false
         selectedUsername.value = ''
       } catch (error) {
@@ -1195,6 +1205,7 @@ export default {
         // console.log('Unbinding user:', vm.user_name, 'from VM:', vmid)
         const response = await axios.post(`/users/unassign/${vmid}`, { username: vm.user_name })
         await fetchVMList()
+        selectedVMs.value = []
         ElMessage.success(t('message.userUnbindSuccess'))
       } catch (error) {
         if (error !== 'cancel') {
@@ -1279,101 +1290,135 @@ export default {
 
 <style scoped>
 .vm-list-container {
-  background: white;
+  background: #f8f7fc;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.page-header h2 {
-  margin: 0;
-  color: #333;
-}
-
-.header-actions {
-  display: flex;
-  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  --fs-base: clamp(15px, 1.05vw, 20px);
+  --fs-header: clamp(16px, 1.15vw, 22px);
+  --fs-card-title: clamp(18px, 1.3vw, 26px);
+  --fs-toolbar: clamp(13px, 0.9vw, 17px);
 }
 
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 15px;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #fcfcfd;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  border-radius: 4px;
 }
 
 .toolbar-group {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .toolbar-label {
   font-weight: 600;
-  color: #555;
-  font-size: 13px;
+  color: #909399;
+  font-size: var(--fs-header);
   white-space: nowrap;
+  margin-right: 4px;
 }
 
 .selected-info {
-  margin-bottom: 10px;
-  padding: 8px 12px;
-  background: #e7f3ff;
-  border: 1px solid #b3d7ff;
+  margin-bottom: 12px;
+  padding: clamp(6px, 0.5vw, 10px) clamp(10px, 0.8vw, 14px);
+  background: rgba(92, 107, 192, 0.08);
+  border: 1px solid rgba(92, 107, 192, 0.25);
   border-radius: 4px;
-  color: #004085;
-  font-size: 13px;
+  color: #5c6bc0;
+  font-size: var(--fs-toolbar);
 }
 
 .table-container {
-  overflow-x: auto;
+  overflow-x: scroll;
   overflow-y: visible;
-  margin-bottom: 20px;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  scrollbar-width: auto;
+  scrollbar-color: rgba(92, 107, 192, 0.6) rgba(92, 107, 192, 0.12);
+  padding-bottom: 2px;
+}
+.table-container::-webkit-scrollbar {
+  height: 10px;
+}
+.table-container::-webkit-scrollbar-track {
+  background: rgba(92, 107, 192, 0.12);
+  border-radius: 4px;
+}
+.table-container::-webkit-scrollbar-thumb {
+  background: rgba(92, 107, 192, 0.55);
+  border-radius: 4px;
+  min-width: 60px;
+}
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(92, 107, 192, 0.75);
 }
 
 .vm-table {
-  width: max-content;
-  min-width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border: 1px solid #ddd;
+  width: 1800px;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  border-radius: 4px;
+  background: #fcfcfd;
+  font-size: var(--fs-base);
 }
 
 .vm-table th,
 .vm-table td {
-  padding: 8px 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-  border-right: 1px solid #ddd;
+  padding-top: clamp(6px, 0.6vw, 12px);
+  padding-bottom: clamp(6px, 0.6vw, 12px);
+  padding-left: clamp(2px, 0.2vw, 5px);
+  padding-right: clamp(2px, 0.2vw, 5px);
+  text-align: center;
+  vertical-align: middle;
+  border-right: 1px solid rgba(92, 107, 192, 0.15);
+  border-bottom: 1px solid rgba(92, 107, 192, 0.15);
   white-space: nowrap;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  box-sizing: border-box;
+}
+
+.vm-table th:last-child,
+.vm-table td:last-child {
+  border-right: none;
+}
+
+.vm-table tr:last-child td {
+  border-bottom: none;
 }
 
 .vm-table th {
-  background: #f5f5f5;
+  background: rgba(92, 107, 192, 0.06);
   font-weight: 600;
-  color: #333;
-  border-bottom: 2px solid #bbb;
+  color: #909399;
+  font-size: var(--fs-header);
+  text-align: center;
 }
 
-.vm-table tr:hover {
-  background-color: #f8f9fa;
+.vm-table td {
+  font-size: var(--fs-base);
+}
+
+.vm-table tr:hover td {
+  background: rgba(92, 107, 192, 0.04);
+}
+
+.vm-table input[type="checkbox"] {
+  width: clamp(14px, 1vw, 18px);
+  height: clamp(14px, 1vw, 18px);
+  cursor: pointer;
+  accent-color: #5c6bc0;
 }
 
 .vm-table th.sortable {
@@ -1382,114 +1427,133 @@ export default {
 }
 
 .vm-table th.sortable:hover {
-  background: #e9ecef;
+  background: rgba(92, 107, 192, 0.12);
 }
 
-.vm-table th.sortable:hover {
-  background: #e9ecef;
+.vm-table .sticky-col-1 {
+  min-width: 44px;
+}
+
+.vm-table .sticky-col-2 {
+  min-width: 40px;
+}
+
+.vm-table th:nth-child(3), .vm-table td.col-name {
+  min-width: 100px;
+}
+.vm-table th:nth-child(4), .vm-table td.col-group {
+  min-width: 75px;
+}
+.vm-table th:nth-child(5), .vm-table td.col-user {
+  min-width: 65px;
+}
+.vm-table th:nth-child(6), .vm-table td.col-ip {
+  min-width: 80px;
+}
+.vm-table th:nth-child(7),
+.vm-table td:nth-child(7) {
+  min-width: 90px;
+}
+.vm-table th:nth-child(8), .vm-table td:nth-child(8) {
+  min-width: 80px;
+}
+.vm-table th:nth-child(9),
+.vm-table td:nth-child(9) {
+  min-width: 80px;
+}
+.vm-table th:nth-child(10), .vm-table td.col-cpu {
+  min-width: 55px;
+}
+.vm-table th:nth-child(11), .vm-table td:nth-child(11) {
+  min-width: 40px;
+}
+.vm-table th:nth-child(12),
+.vm-table td:nth-child(12) {
+  min-width: 70px;
+}
+.vm-table th:nth-child(13),
+.vm-table td:nth-child(13) {
+  min-width: 70px;
+}
+.vm-table th:nth-child(14),
+.vm-table td:nth-child(14) {
+  min-width: 80px;
+}
+.vm-table th:nth-child(15),
+.vm-table td:nth-child(15) {
+  min-width: 60px;
+}
+.vm-table th:nth-child(16),
+.vm-table td:nth-child(16) {
+  min-width: 60px;
+}
+.vm-table th:nth-child(17),
+.vm-table td:nth-child(17) {
+  min-width: 55px;
+}
+.vm-table th:nth-child(18),
+.vm-table td:nth-child(18) {
+  min-width: 55px;
+}
+
+.vm-table td.col-name,
+.vm-table td.col-group,
+.vm-table td.col-user,
+.vm-table td.col-ip,
+.vm-table td.col-cpu,
+.vm-table td.col-num,
+.vm-table td.sticky-col-2 {
+  white-space: nowrap;
 }
 
 .sort-indicator {
-  margin-left: 5px;
-  font-size: 12px;
-  color: #666;
+  display: none;
 }
 
 .status-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
+  padding: clamp(2px, 0.2vw, 4px) clamp(6px, 0.5vw, 10px);
+  border-radius: 4px;
+  font-size: var(--fs-toolbar);
   font-weight: 500;
+  display: inline-block;
 }
 
 .status-badge.running {
-  background: #d4edda;
-  color: #155724;
+  background: #e1f3d8;
+  color: #529b2e;
 }
 
 .status-badge.stopped {
-  background: #f8d7da;
-  color: #721c24;
+  background: #fde2e2;
+  color: #c45656;
 }
 
 .status-badge.creating {
-  background: #fff3cd;
-  color: #856404;
+  background: #faecd8;
+  color: #b88230;
 }
 
 .status-badge.error {
-  background: #f5c6cb;
-  color: #721c24;
+  background: #fde2e2;
+  color: #c45656;
 }
 
 .status-badge.unknown {
-  background: #e2e3e5;
-  color: #383d41;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 5px;
-}
-
-.btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-primary {
-  background: #007bff;
-  color: white;
-}
-
-.btn-secondary {
-  background: #6c757d;
-  color: white;
-}
-
-.btn-danger {
-  background: #dc3545;
-  color: white;
-}
-
-.btn-warning {
-  background: #fd7e14;
-  color: white;
-}
-
-.btn-info {
-  background: #17a2b8;
-  color: white;
-}
-
-.btn-success {
-  background: #28a745;
-  color: white;
-}
-
-.btn-sm {
-  padding: 4px 8px;
-  font-size: 12px;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  background: #e9e9eb;
+  color: #606266;
 }
 
 .loading-state,
 .error-state,
 .empty-state {
   text-align: center;
-  padding: 40px;
-  color: #666;
+  padding: clamp(24px, 3vw, 48px);
+  color: #909399;
+  font-size: var(--fs-base);
 }
 
 .error-state {
-  color: #dc3545;
+  color: #f56c6c;
 }
 
 .pagination {
@@ -1498,39 +1562,138 @@ export default {
   align-items: center;
   gap: 15px;
   margin-top: 20px;
+  font-size: var(--fs-base);
 }
 
 .page-btn {
-  padding: 8px 16px;
-  border: 1px solid #ddd;
-  background: white;
+  padding: clamp(6px, 0.5vw, 10px) clamp(12px, 1vw, 20px);
+  border: 1px solid rgba(92, 107, 192, 0.4);
+  background: rgba(92, 107, 192, 0.12);
+  color: #5c6bc0;
   border-radius: 4px;
   cursor: pointer;
+  font-size: var(--fs-base);
+  transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #5c6bc0;
+  color: #fff;
+  border-color: #5c6bc0;
 }
 
 .page-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .page-info {
-  color: #666;
+  color: #606266;
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    gap: 15px;
-    align-items: flex-start;
-  }
-  
-  .vm-table {
-    min-width: 800px;
-  }
+.vm-list-container :deep(.toolbar .el-button.btn) {
+  font-size: var(--fs-header);
+  transition: all 0.2s;
 }
 
-/* 用户列表对话框样式 */
+.vm-list-container :deep(.toolbar .el-button.btn.not-operable) {
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-info),
+.vm-list-container :deep(.toolbar .el-button.btn-primary) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-info:hover),
+.vm-list-container :deep(.toolbar .el-button.btn-primary:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-info:active),
+.vm-list-container :deep(.toolbar .el-button.btn-primary:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-success) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-success:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-success:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-danger) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-danger:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-danger:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-warning) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-warning:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-warning:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-secondary) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-secondary:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.vm-list-container :deep(.toolbar .el-button.btn-secondary:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
 .user-list-container {
   max-height: 400px;
   overflow-y: auto;
@@ -1544,7 +1707,7 @@ export default {
 }
 
 .user-item:hover {
-  background-color: #f5f7fa;
+  background-color: rgba(92, 107, 192, 0.06);
 }
 
 .user-info {
@@ -1554,30 +1717,30 @@ export default {
 }
 
 .user-name {
-  font-size: 15px;
+  font-size: var(--fs-base);
   font-weight: 600;
-  color: #333;
+  color: #303133;
 }
 
 .user-details {
   display: flex;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--fs-toolbar);
 }
 
 .user-group {
-  color: #666;
+  color: #909399;
 }
 
 .user-item .el-radio__input {
   margin-right: 12px;
 }
 
-/* 密码单元格样式 */
 .password-cell {
   display: flex;
   align-items: center;
   gap: 8px;
+  justify-content: center;
 }
 
 .password-mask {
@@ -1589,5 +1752,76 @@ export default {
 .password-text {
   color: #606266;
   font-family: monospace;
+}
+
+@media (max-width: 768px) {
+  .vm-list-container {
+    padding: 10px;
+    --fs-base: 13px;
+    --fs-header: 14px;
+    --fs-card-title: 16px;
+    --fs-toolbar: 12px;
+  }
+
+  .toolbar {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .toolbar-group {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .vm-list-container {
+    --fs-base: 12px;
+    --fs-header: 13px;
+    --fs-card-title: 15px;
+    --fs-toolbar: 11px;
+  }
+}
+</style>
+
+<style>
+.vm-list-dialog {
+  --d-fs-base: clamp(15px, 1.05vw, 20px);
+  --d-fs-header: clamp(16px, 1.15vw, 22px);
+}
+
+.vm-list-dialog .el-dialog__title {
+  font-size: var(--d-fs-header);
+  font-weight: 600;
+  color: #5c6bc0;
+}
+
+.vm-list-dialog .el-form-item__label {
+  font-size: var(--d-fs-base);
+  color: #606266;
+  position: relative;
+  padding-left: 12px;
+  width: auto !important;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.vm-list-dialog .el-form-item.is-required .el-form-item__label::before {
+  position: absolute;
+  left: 0;
+}
+
+.vm-list-dialog .el-input__inner,
+.vm-list-dialog .el-textarea__inner {
+  font-size: var(--d-fs-base);
+}
+
+.vm-list-dialog .dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.vm-list-dialog .dialog-footer .el-button {
+  font-size: var(--d-fs-base);
 }
 </style>

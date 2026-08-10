@@ -1,108 +1,91 @@
 <template>
   <div class="dashboard-container">
-    
-    <div class="dashboard-content">
-      <!-- 节点信息表格 -->
-      <el-card class="node-info">
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('dashboard.nodeInfo') }}</span>
-          </div>
-        </template>
-        <div class="table-container">
-          <el-table :data="nodeInfo" :style="{ width: '100%' }" :border="true" fit size="default" :header-row-class-name="'full-width-header'" :row-class-name="'full-width-row'">
+    <!-- 节点信息表格 -->
+      <section class="table-section">
+        <h3 class="section-title">{{ t('dashboard.nodeInfo') }}</h3>
+        <el-table :data="nodeInfo" :style="{ width: '100%' }" :border="true" fit size="default" empty-text="" :header-row-class-name="'full-width-header'" :row-class-name="'full-width-row'">
           <el-table-column prop="name" :label="t('dashboard.node')" min-width="80"></el-table-column>
           <el-table-column prop="ip" :label="t('dashboard.ipAddress')" min-width="120"></el-table-column>
           <el-table-column prop="pveVersion" :label="t('dashboard.pveVersion')" min-width="100"></el-table-column>
           <el-table-column prop="kernelVersion" :label="t('dashboard.kernelVersion')" min-width="120"></el-table-column>
           <el-table-column prop="processor" :label="t('dashboard.processor')" min-width="150">
-          <template #default="{row}">
-            <div style="white-space: pre-line;">{{ row.processor }}</div>
-          </template>
-        </el-table-column>
+            <template #default="{row}">
+              <div style="white-space: pre-line;">{{ row.processor }}</div>
+            </template>
+          </el-table-column>
           <el-table-column prop="memory" :label="t('dashboard.memory')" width="100"></el-table-column>
           <el-table-column prop="storage" :label="t('dashboard.storage')" width="100">
-          <template #default="{row}">
-            <div style="white-space: pre-line;">{{ row.storage }}</div>
-          </template>
-        </el-table-column>
-          </el-table>
-        </div>
-      </el-card>
+            <template #default="{row}">
+              <div style="white-space: pre-line;">{{ row.storage }}</div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </section>
       
       <!-- 节点状态表格 -->
-      <el-card class="node-status">
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('dashboard.nodeStatus') }}</span>
-          </div>
-        </template>
-        <div class="table-container">
-          <el-table :data="nodeStatus" :style="{ width: '100%' }" :border="true" fit size="default" :header-row-class-name="'full-width-header'" :row-class-name="'full-width-row'">
+      <section class="table-section">
+        <h3 class="section-title">{{ t('dashboard.nodeStatus') }}</h3>
+        <el-table :data="nodeStatus" :style="{ width: '100%' }" :border="true" fit size="default" empty-text="" :header-row-class-name="'full-width-header'" :row-class-name="'full-width-row'">
           <el-table-column prop="uptime" :label="t('dashboard.uptime')" min-width="100"></el-table-column>
           <el-table-column prop="cpu" :label="t('dashboard.cpu')" min-width="120">
-          <template #default="{row}">
-            <div class="cpu-progress-container" v-if="row.cpuData">
-              <div class="progress-circle">
-                <div class="progress-circle-inner">
-                  <div class="progress-text">{{ row.cpuData.percentage }}%</div>
-                  <div class="progress-label">{{ t('dashboard.cpu') }}</div>
+            <template #default="{row}">
+              <div class="cpu-progress-container" v-if="row.cpuData">
+                <div class="progress-circle">
+                  <div class="progress-circle-inner">
+                    <div class="progress-text">{{ row.cpuData.percentage }}%</div>
+                    <div class="progress-label">{{ t('dashboard.cpu') }}</div>
+                  </div>
+                  <svg class="progress-svg" viewBox="0 0 80 80">
+                    <circle class="progress-circle-background" cx="40" cy="40" r="30" />
+                    <circle class="progress-circle-bar" cx="40" cy="40" r="30" 
+                      :stroke-dasharray="row.cpuData.circleLength" 
+                      :stroke-dashoffset="row.cpuData.offset" />
+                  </svg>
                 </div>
-                <svg class="progress-svg" width="80" height="80">
-                  <circle class="progress-circle-background" cx="40" cy="40" r="30" />
-                  <circle class="progress-circle-bar" cx="40" cy="40" r="30" 
-                    :stroke-dasharray="row.cpuData.circleLength" 
-                    :stroke-dashoffset="row.cpuData.offset" />
-                </svg>
               </div>
-            </div>
-          </template>
-        </el-table-column>
+            </template>
+          </el-table-column>
           <el-table-column prop="memory" :label="t('dashboard.memory')" min-width="120">
-          <template #default="{row}">
-            <div class="memory-progress-container" v-if="row.memoryData">
-              <div class="progress-circle">
-                <div class="progress-circle-inner">
-                  <div class="progress-text">{{ row.memoryData.percentage }}%</div>
-                  <div class="progress-label">{{ t('dashboard.memory') }}</div>
+            <template #default="{row}">
+              <div class="memory-progress-container" v-if="row.memoryData">
+                <div class="progress-circle">
+                  <div class="progress-circle-inner">
+                    <div class="progress-text">{{ row.memoryData.percentage }}%</div>
+                    <div class="progress-label">{{ t('dashboard.memory') }}</div>
+                  </div>
+                  <svg class="progress-svg" viewBox="0 0 80 80">
+                    <circle class="progress-circle-background" cx="40" cy="40" r="30" />
+                    <circle class="progress-circle-bar" cx="40" cy="40" r="30" 
+                      :stroke-dasharray="row.memoryData.circleLength" 
+                      :stroke-dashoffset="row.memoryData.offset" />
+                  </svg>
                 </div>
-                <svg class="progress-svg" width="80" height="80">
-                  <circle class="progress-circle-background" cx="40" cy="40" r="30" />
-                  <circle class="progress-circle-bar" cx="40" cy="40" r="30" 
-                    :stroke-dasharray="row.memoryData.circleLength" 
-                    :stroke-dashoffset="row.memoryData.offset" />
-                </svg>
+                <div class="memory-details">{{ row.memoryData.used }} / {{ row.memoryData.total }}</div>
               </div>
-              <div class="memory-details">{{ row.memoryData.used }} / {{ row.memoryData.total }}</div>
-            </div>
-          </template>
-        </el-table-column>
+            </template>
+          </el-table-column>
           <el-table-column prop="swap" :label="t('dashboard.swap')" min-width="120">
-          <template #default="{row}">
-            <div class="swap-progress-container" v-if="row.swapData">
-              <div class="progress-circle">
-                <div class="progress-circle-inner">
-                  <div class="progress-text">{{ row.swapData.percentage }}%</div>
-                  <div class="progress-label">SWAP</div>
+            <template #default="{row}">
+              <div class="swap-progress-container" v-if="row.swapData">
+                <div class="progress-circle">
+                  <div class="progress-circle-inner">
+                    <div class="progress-text">{{ row.swapData.percentage }}%</div>
+                    <div class="progress-label">SWAP</div>
+                  </div>
+                  <svg class="progress-svg" viewBox="0 0 80 80">
+                    <circle class="progress-circle-background" cx="40" cy="40" r="30" />
+                    <circle class="progress-circle-bar" cx="40" cy="40" r="30" 
+                      :stroke-dasharray="row.swapData.circleLength" 
+                      :stroke-dashoffset="row.swapData.offset" />
+                  </svg>
                 </div>
-                <svg class="progress-svg" width="80" height="80">
-                  <circle class="progress-circle-background" cx="40" cy="40" r="30" />
-                  <circle class="progress-circle-bar" cx="40" cy="40" r="30" 
-                    :stroke-dasharray="row.swapData.circleLength" 
-                    :stroke-dashoffset="row.swapData.offset" />
-                </svg>
+                <div class="swap-details">{{ row.swapData.used }} / {{ row.swapData.total }}</div>
               </div>
-              <div class="swap-details">{{ row.swapData.used }} / {{ row.swapData.total }}</div>
-            </div>
-          </template>
-        </el-table-column>
+            </template>
+          </el-table-column>
           <el-table-column prop="loadAverage" :label="t('dashboard.loadAverage')" min-width="100">
             <template #default="{row}">
-              <div v-if="row.loadavg && Array.isArray(row.loadavg)">
-                <div v-for="(value, index) in row.loadavg" :key="index">
-                  {{ value }}
-                </div>
-              </div>
+              <span v-if="row.loadavg && Array.isArray(row.loadavg)">{{ row.loadavg.join(', ') }}</span>
               <span v-else>{{ row.loadAverage }}</span>
             </template>
           </el-table-column>
@@ -112,52 +95,44 @@
             </template>
           </el-table-column>
           <el-table-column prop="storage" :label="t('dashboard.storage')" min-width="200">
-          <template #default="{row}">
-            <div class="storage-container" v-if="row.storageData && Array.isArray(row.storageData)">
-              <div v-for="storage in row.storageData" :key="storage.storage" class="storage-progress-item">
-                <div class="storage-progress-circle">
-                  <div class="progress-circle-inner">
-                    <div class="progress-text">{{ storage.processedData.percentage }}%</div>
-                    <div class="progress-label">{{ storage.storage }}</div>
+            <template #default="{row}">
+              <div class="storage-container" v-if="row.storageData && Array.isArray(row.storageData)">
+                <div v-for="storage in row.storageData" :key="storage.storage" class="storage-progress-item">
+                  <div class="storage-progress-circle">
+                    <div class="progress-circle-inner">
+                      <div class="progress-text">{{ storage.processedData.percentage }}%</div>
+                      <div class="progress-label">{{ storage.storage }}</div>
+                    </div>
+                    <svg class="progress-svg" viewBox="0 0 80 80">
+                      <circle class="progress-circle-background" cx="40" cy="40" r="30" />
+                      <circle class="progress-circle-bar" cx="40" cy="40" r="30" 
+                        :stroke-dasharray="storage.processedData.circleLength" 
+                        :stroke-dashoffset="storage.processedData.offset"
+                        :style="{ stroke: getProgressColor(storage.processedData.percentage) }" />
+                    </svg>
                   </div>
-                  <svg class="progress-svg" width="80" height="80">
-                    <circle class="progress-circle-background" cx="40" cy="40" r="30" />
-                    <circle class="progress-circle-bar" cx="40" cy="40" r="30" 
-                      :stroke-dasharray="storage.processedData.circleLength" 
-                      :stroke-dashoffset="storage.processedData.offset"
-                      :style="{ stroke: getProgressColor(storage.processedData.percentage) }" />
-                  </svg>
-                </div>
-                <div class="storage-details">
-                  <div>{{ storage.processedData.used }} / {{ storage.processedData.total }}</div>
+                  <div class="storage-details">
+                    <div>{{ storage.processedData.used }} / {{ storage.processedData.total }}</div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <span v-else>{{ row.storage || t('dashboard.noData') }}</span>
-          </template>
-        </el-table-column>
-          </el-table>
-        </div>
-      </el-card>
+              <span v-else>{{ row.storage || '' }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </section>
 
-      <el-card class="dashboard-card">
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('dashboard.statistics') }}</span>
-          </div>
-        </template>
-        <div class="table-container">
-          <el-table :data="statistics" :style="{ width: '100%' }" :border="true" fit size="default" :header-row-class-name="'full-width-header'" :row-class-name="'full-width-row'">
-            <el-table-column prop="template" :label="t('dashboard.template')" min-width="120"></el-table-column>
-            <el-table-column prop="vm" :label="t('dashboard.vm')" min-width="100"></el-table-column>
-            <el-table-column prop="vmGroup" :label="t('dashboard.vmGroup')" min-width="100"></el-table-column>
-            <el-table-column prop="user" :label="t('dashboard.user')" min-width="100"></el-table-column>
-            <el-table-column prop="userGroup" :label="t('dashboard.userGroup')" min-width="100"></el-table-column>
-          </el-table>
-        </div>
-      </el-card>
+      <section class="table-section">
+        <h3 class="section-title">{{ t('dashboard.statistics') }}</h3>
+        <el-table :data="statistics" :style="{ width: '100%' }" :border="true" fit size="default" empty-text="" :header-row-class-name="'full-width-header'" :row-class-name="'full-width-row'">
+          <el-table-column prop="template" :label="t('dashboard.template')" min-width="120"></el-table-column>
+          <el-table-column prop="vm" :label="t('dashboard.vm')" min-width="100"></el-table-column>
+          <el-table-column prop="vmGroup" :label="t('dashboard.vmGroup')" min-width="100"></el-table-column>
+          <el-table-column prop="user" :label="t('dashboard.user')" min-width="100"></el-table-column>
+          <el-table-column prop="userGroup" :label="t('dashboard.userGroup')" min-width="100"></el-table-column>
+        </el-table>
+      </section>
 
-    </div>
   </div>
 </template>
 
@@ -702,204 +677,155 @@ export default {
 
 <style scoped>
 .dashboard-container {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  margin: 0;
   padding: 20px;
-  width: 100%;
-  max-width: none;
-  box-sizing: border-box;
-  margin: 0;
-  overflow: visible;
-}
-
-.dashboard-content {
-  margin: 0;
-  width: 100%;
-  max-width: none;
-  box-sizing: border-box;
+  background: #f8f7fc;
+  /* 响应式字体变量：最小/理想/最大 */
+  --fs-base: clamp(15px, 1.05vw, 20px);
+  --fs-header: clamp(16px, 1.15vw, 22px);
+  --fs-card-title: clamp(18px, 1.3vw, 26px);
+  --fs-progress-text: clamp(15px, 1vw, 20px);
+  --fs-progress-label: clamp(13px, 0.85vw, 16px);
+  --fs-detail: clamp(12px, 0.8vw, 16px);
+  --progress-size: clamp(64px, 5.5vw, 130px);
+  --progress-stroke: clamp(3px, 0.3vw, 6px);
 }
 
 .node-info,
-.node-status {
-  margin-bottom: 20px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+.node-status,
+.dashboard-card {
+  margin-bottom: 16px;
   width: 100%;
-  max-width: none;
   box-sizing: border-box;
-  min-width: 0; /* 允许内容收缩 */
+  min-width: 0;
 }
 
-/* 表格容器样式，添加水平滚动 */
-.table-container {
-  overflow-x: auto;
+.table-section {
   width: 100%;
-  -webkit-overflow-scrolling: touch; /* 优化移动端滚动体验 */
-  display: flex;
-  flex-direction: column;
-  max-width: 100%;
-  box-sizing: border-box;
-  position: relative;
+  margin-bottom: 16px;
 }
 
-.table-container::-webkit-scrollbar {
-  height: 6px;
-}
-
-.table-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-.table-container::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+.section-title {
+  font-size: var(--fs-card-title);
+  font-weight: 600;
+  color: #5c6bc0;
+  margin: 0 0 clamp(6px, 0.6vw, 12px) 0;
+  padding: 0;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 16px;
+  font-size: var(--fs-card-title);
   font-weight: 600;
   color: #303133;
 }
 
-/* 大屏幕优化 */
-@media (min-width: 1200px) {
-  .dashboard-content {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-  
-  .el-table {
-    width: 100% !important;
-    table-layout: auto !important;
-  }
-  
-  .el-table__header-wrapper,
-  .el-table__body-wrapper {
-    width: 100%;
-    overflow-x: visible;
-  }
+/* 表格卡片样式：浅白背景 + 紫色系细边框 */
+.dashboard-container :deep(.el-table) {
+  width: 100% !important;
+  font-size: var(--fs-base);
+  background: #fcfcfd;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  border-radius: 4px;
+  transition: none !important;
 }
 
-/* 表格行全宽样式 */
-.dashboard-content :deep(.full-width-header),
-.dashboard-content :deep(.full-width-row) {
+.dashboard-container :deep(.el-table *) {
+  transition: none !important;
+}
+
+.dashboard-container :deep(.el-table th.el-table__cell) {
+  background: rgba(92, 107, 192, 0.06) !important;
+}
+
+.dashboard-container :deep(.el-table th .cell) {
+  font-size: var(--fs-header);
+  font-weight: 600;
+}
+
+.dashboard-container :deep(.el-table td .cell) {
+  font-size: var(--fs-base);
+}
+
+.dashboard-container :deep(.el-table__header-wrapper),
+.dashboard-container :deep(.el-table__body-wrapper) {
+  width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+.dashboard-container :deep(.full-width-header),
+.dashboard-container :deep(.full-width-row) {
   width: 100% !important;
   min-width: 100% !important;
   max-width: 100% !important;
 }
 
-/* 强制表格头和表格体宽度为100% */
-.dashboard-content :deep(.el-table__header-wrapper),
-.dashboard-content :deep(.el-table__body-wrapper) {
-  width: 100% !important;
-  min-width: 100% !important;
-  overflow-x: hidden !important;
+.dashboard-container :deep(.el-table th.el-table__cell),
+.dashboard-container :deep(.el-table td.el-table__cell) {
+  padding-top: clamp(6px, 0.6vw, 12px);
+  padding-bottom: clamp(6px, 0.6vw, 12px);
+  text-align: center;
+  vertical-align: middle;
 }
 
-/* 强制表格元素宽度为100% */
-.dashboard-content :deep(.el-table__header),
-.dashboard-content :deep(.el-table__body) {
-  width: 100% !important;
-  min-width: 100% !important;
-  table-layout: auto !important;
+.dashboard-container :deep(.el-table .cell) {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* 覆盖固定宽度设置 */
-.dashboard-content :deep(.el-table--layout-fixed) {
-  table-layout: auto !important;
-  width: 100% !important;
-}
-
-/* 中等屏幕优化 */
-@media (min-width: 769px) and (max-width: 1199px) {
-  .dashboard-content {
-    max-width: none;
-  }
-  
-  .el-table {
-    width: 100% !important;
-  }
-}
-
-/* 小屏幕优化 */
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 10px;
+    --fs-base: 12px;
+    --fs-header: 13px;
+    --fs-card-title: 15px;
+    --fs-progress-text: 11px;
+    --fs-progress-label: 10px;
+    --fs-detail: 10px;
+    --progress-size: 54px;
+    --progress-stroke: 3px;
   }
-  
-  /* 在小屏幕上优化存储容器显示 */
+
   .storage-container {
-    flex-direction: column;
-    gap: 10px;
+    gap: 6px;
   }
-  
+
   .storage-progress-item {
-    flex: 0 0 calc(50% - 4px); /* 在小屏幕上每行显示两个 */
-  }
-  
-  /* 减小小屏幕上的进度圈大小 */
-  .storage-progress-circle,
-  .progress-circle {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .progress-svg {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .progress-circle-bar,
-  .progress-circle-background {
-    stroke-width: 3;
-  }
-  
-  .progress-text {
-    font-size: 12px;
-  }
-  
-  .progress-label {
-    font-size: 10px;
-  }
-  
-  .storage-details,
-  .memory-details,
-  .swap-details {
-    font-size: 10px;
+    flex: 0 0 calc(50% - 4px);
   }
 }
 
 @media (max-width: 480px) {
-  /* 在更小的屏幕上每行显示一个存储项 */
+  .dashboard-container {
+    --fs-base: 12px;
+    --fs-header: 13px;
+    --fs-card-title: 14px;
+    --fs-progress-text: 11px;
+    --fs-progress-label: 10px;
+    --fs-detail: 10px;
+    --progress-size: 48px;
+    --progress-stroke: 3px;
+  }
+
   .storage-progress-item {
     flex: 0 0 100%;
   }
-  
-  /* 进一步减小进度圈大小 */
-  .storage-progress-circle,
-  .progress-circle {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .progress-svg {
-    width: 50px;
-    height: 50px;
-  }
 }
 
-/* 进度图样式 */
-.memory-progress-container, .cpu-progress-container, .swap-progress-container {
+.memory-progress-container,
+.cpu-progress-container,
+.swap-progress-container {
   display: flex;
   flex-direction: column;
 }
 
-/* 存储进度图样式 */
 .storage-container {
   display: flex;
   flex-wrap: wrap;
@@ -912,70 +838,22 @@ export default {
   align-items: center;
 }
 
-.storage-progress-circle {
+.storage-progress-circle,
+.progress-circle {
   position: relative;
-  width: 80px;
-  height: 80px;
-  /* 限制最大尺寸以避免在大屏幕下过大 */
-  max-width: 80px;
-  max-height: 80px;
+  width: var(--progress-size);
+  height: var(--progress-size);
+  max-width: var(--progress-size);
+  max-height: var(--progress-size);
 }
 
 .progress-svg {
   position: absolute;
   top: 0;
   left: 0;
-  /* 合并transform属性，添加硬件加速 */
-  transform: translateZ(0) rotate(-90deg);
-  will-change: transform;
-}
-
-.progress-circle-background {
-  fill: none;
-  stroke: #e6e6e6;
-  stroke-width: 6;
-}
-
-.progress-circle-bar {
-  fill: none;
-  stroke-width: 6;
-  transition: stroke-dashoffset 0.5s ease;
-}
-
-.progress-circle-inner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-
-.progress-text {
-  font-size: 14px;
-  font-weight: bold;
-  color: #303133;
-}
-
-.progress-label {
-  font-size: 12px;
-  color: #606266;
-  margin-top: 2px;
-}
-
-.storage-details {
-  margin-top: 5px;
-  font-size: 12px;
-  color: #909399;
-  text-align: center;
-}
-
-.progress-circle {
-  position: relative;
-  width: 80px;
-  height: 80px;
-  /* 限制最大尺寸以避免在大屏幕下过大 */
-  max-width: 80px;
-  max-height: 80px;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
 }
 
 .progress-circle-inner {
@@ -988,41 +866,42 @@ export default {
 }
 
 .progress-text {
-  font-size: 14px;
+  font-size: var(--fs-progress-text);
   font-weight: 600;
   color: #303133;
   line-height: 1.2;
 }
 
 .progress-label {
-  font-size: 12px;
+  font-size: var(--fs-progress-label);
   color: #909399;
   margin-top: 2px;
 }
 
-.progress-svg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: rotate(-90deg);
+.storage-details {
+  margin-top: 5px;
+  font-size: var(--fs-detail);
+  color: #909399;
+  text-align: center;
 }
 
 .progress-circle-background {
   fill: transparent;
   stroke: #e4e7ed;
-  stroke-width: 4;
+  stroke-width: var(--progress-stroke);
 }
 
 .progress-circle-bar {
   fill: transparent;
   stroke: #409eff;
-  stroke-width: 4;
+  stroke-width: var(--progress-stroke);
   stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
 }
 
 .memory-details,
 .swap-details {
-  font-size: 11px;
+  font-size: var(--fs-detail);
   color: #606266;
   margin-top: 5px;
 }

@@ -4,7 +4,12 @@
     
     <!-- PVE配置表格 -->
     <div class="settings-section">
-      <h3 class="section-title">{{ t('settings.pveConfig') }}</h3>
+      <div class="section-header">
+        <h3 class="section-title">{{ t('settings.pveConfig') }}</h3>
+        <div class="action-buttons">
+          <el-button class="save-btn" @click="saveConfig">{{ t('settings.saveConfig') }}</el-button>
+        </div>
+      </div>
       <div class="table-container">
         <table class="settings-table">
           <tbody>
@@ -31,15 +36,16 @@
           </tbody>
         </table>
       </div>
-      
-      <div class="action-buttons">
-        <el-button type="primary" @click="saveConfig">{{ t('settings.saveConfig') }}</el-button>
-      </div>
     </div>
     
     <!-- 管理网络配置表格 -->
     <div class="settings-section">
-      <h3 class="section-title">{{ t('settings.ipConfig') }}</h3>
+      <div class="section-header">
+        <h3 class="section-title">{{ t('settings.ipConfig') }}</h3>
+        <div class="action-buttons">
+          <el-button class="save-btn" @click="saveIpConfig">{{ t('settings.saveConfig') }}</el-button>
+        </div>
+      </div>
       <div class="table-container">
         <table class="settings-table">
           <tbody>
@@ -77,15 +83,16 @@
           </tbody>
         </table>
       </div>
-      
-      <div class="action-buttons">
-        <el-button type="primary" @click="saveIpConfig">{{ t('settings.saveConfig') }}</el-button>
-      </div>
     </div>
     
     <!-- 公网网关配置表格 -->
     <div class="settings-section">
-      <h3 class="section-title">{{ t('settings.publicGatewayProxy') }}</h3>
+      <div class="section-header">
+        <h3 class="section-title">{{ t('settings.publicGatewayProxy') }}</h3>
+        <div class="action-buttons">
+          <el-button class="save-btn" @click="savePublicGatewayConfig">{{ t('settings.saveConfig') }}</el-button>
+        </div>
+      </div>
       <div class="table-container">
         <table class="settings-table">
           <tbody>
@@ -102,15 +109,16 @@
           </tbody>
         </table>
       </div>
-      
-      <div class="action-buttons">
-        <el-button type="primary" @click="savePublicGatewayConfig">{{ t('settings.saveConfig') }}</el-button>
-      </div>
     </div>
     
     <!-- 内网网关配置表格 -->
     <div class="settings-section">
-      <h3 class="section-title">{{ t('settings.internalGatewayProxy') }}</h3>
+      <div class="section-header">
+        <h3 class="section-title">{{ t('settings.internalGatewayProxy') }}</h3>
+        <div class="action-buttons">
+          <el-button class="save-btn" @click="saveInternalGatewayConfig">{{ t('settings.saveConfig') }}</el-button>
+        </div>
+      </div>
       <div class="table-container">
         <table class="settings-table">
           <tbody>
@@ -127,25 +135,26 @@
           </tbody>
         </table>
       </div>
-      
-      <div class="action-buttons">
-        <el-button type="primary" @click="saveInternalGatewayConfig">{{ t('settings.saveConfig') }}</el-button>
-      </div>
     </div>
     
     <!-- FreeRDP配置表格 -->
     <div class="settings-section">
-      <h3 class="section-title">{{ t('settings.freeRdpConfig') }}</h3>
+      <div class="section-header">
+        <h3 class="section-title">{{ t('settings.freeRdpConfig') }}</h3>
+        <div class="action-buttons">
+          <el-button class="save-btn" @click="saveFreeRdpConfig">{{ t('settings.saveConfig') }}</el-button>
+        </div>
+      </div>
       <div class="table-container">
         <table class="settings-table freerdp-config-table">
           <tbody>
             <tr>
               <td class="col-label">{{ t('settings.rdpEncoder') }}</td>
               <td class="col-value freerdp-config-value" colspan="3">
-                <el-select v-model="freeRdpConfig.rdpEncoder" :placeholder="t('settings.pleaseSelectRdpEncoder')" style="width: 100%;">
-                  <el-option label="rfx" value="rfx" />
-                  <el-option label="gfx" value="gfx" />
-                </el-select>
+                <el-radio-group v-model="freeRdpConfig.rdpEncoder">
+                  <el-radio value="rfx">rfx</el-radio>
+                  <el-radio value="gfx">gfx</el-radio>
+                </el-radio-group>
               </td>
             </tr>
             <tr>
@@ -157,15 +166,16 @@
           </tbody>
         </table>
       </div>
-      
-      <div class="action-buttons">
-        <el-button type="primary" @click="saveFreeRdpConfig">{{ t('settings.saveConfig') }}</el-button>
-      </div>
     </div>
     
     <!-- 修改密码表格 -->
     <div class="settings-section">
-      <h3 class="section-title">{{ t('settings.changeAdminPassword') }}</h3>
+      <div class="section-header">
+        <h3 class="section-title">{{ t('settings.changeAdminPassword') }}</h3>
+        <div class="action-buttons">
+          <el-button class="save-btn" @click="changePassword">{{ t('settings.saveConfig') }}</el-button>
+        </div>
+      </div>
       <div class="table-container">
         <table class="settings-table">
           <tbody>
@@ -189,10 +199,6 @@
             </tr>
           </tbody>
         </table>
-      </div>
-      
-      <div class="action-buttons">
-        <el-button type="primary" @click="changePassword">{{ t('settings.saveConfig') }}</el-button>
       </div>
     </div>
     
@@ -554,56 +560,72 @@ export default {
 
 <style scoped>
 .settings-container {
-  background: white;
+  background: #f8f7fc;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  --fs-base: clamp(15px, 1.05vw, 20px);
+  --fs-header: clamp(16px, 1.15vw, 22px);
+  --fs-card-title: clamp(18px, 1.3vw, 26px);
 }
 
-
-
 .settings-section {
-  margin-top: 30px;
+  margin-bottom: 16px;
+}
+
+.settings-section > .section-title {
+  margin-bottom: 12px;
 }
 
 .section-title {
-  font-size: 18px;
+  font-size: var(--fs-card-title);
   font-weight: 600;
-  color: #303133;
-  margin-bottom: 20px;
+  color: #5c6bc0;
+  margin: 0;
+  padding: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
 }
 
 .table-container {
   width: 100%;
-  overflow-x: auto;
+  overflow: hidden;
+  border-radius: 4px;
 }
 
 .settings-table {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid #e4e7ed;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  background: #fcfcfd;
+  font-size: var(--fs-base);
 }
 
 .settings-table td {
-  padding: 0;
-  border: 1px solid #e4e7ed;
+  padding: 0 clamp(12px, 1vw, 18px);
+  border: 1px solid rgba(92, 107, 192, 0.25);
   vertical-align: middle;
+  text-align: center;
+  height: clamp(44px, 3.5vw, 60px);
+  box-sizing: border-box;
 }
 
 .col-label {
-  width: 150px;
-  min-width: 150px;
-  background-color: #f5f7fa;
-  font-weight: 500;
-  color: #606266;
-  text-align: center;
-  padding: 12px 16px;
+  background-color: rgba(92, 107, 192, 0.06);
+  font-weight: 600;
+  color: #909399;
+  font-size: var(--fs-header);
 }
 
 .col-value {
   width: auto;
   min-width: 200px;
-  padding: 12px 16px;
 }
 
 .col-value :deep(.el-input) {
@@ -615,49 +637,94 @@ export default {
   width: 100%;
   box-shadow: none;
   border-radius: 0;
-  padding: 12px 16px;
-  min-height: 48px;
+  padding: 0 clamp(12px, 1vw, 18px);
+  min-height: unset;
+  height: 100%;
+  background-color: transparent;
 }
 
 .col-value :deep(.el-input__inner) {
   width: 100%;
   height: 100%;
+  font-size: var(--fs-base);
 }
 
 .col-value :deep(.el-select) {
   width: 100%;
+  height: 100%;
 }
 
 .col-value :deep(.el-select .el-input__wrapper) {
   width: 100%;
   box-shadow: none;
   border-radius: 0;
-  padding: 12px 16px;
-  min-height: 48px;
+  padding: 0 clamp(12px, 1vw, 18px);
+  min-height: unset;
+  height: 100%;
+}
+
+.col-value :deep(.el-select__selected-item) {
+  font-size: var(--fs-base);
+  text-align: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .col-value :deep(.el-radio-group) {
-  padding: 12px 16px;
-  min-height: 48px;
+  padding: 0;
+  min-height: unset;
+  height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 20px;
+  font-size: var(--fs-base);
+}
+
+.col-value :deep(.el-radio) {
+  font-size: var(--fs-base);
+}
+
+.col-value :deep(.el-switch) {
+  font-size: var(--fs-base);
 }
 
 .action-buttons {
-  margin-top: 20px;
   display: flex;
   gap: 10px;
-  justify-content: flex-end;
 }
 
-/* 产品信息表格样式 */
+.action-buttons :deep(.el-button) {
+  font-size: var(--fs-base);
+}
+
+.action-buttons :deep(.save-btn) {
+  background-color: rgba(92, 107, 192, 0.12);
+  border-color: rgba(92, 107, 192, 0.4);
+  color: #5c6bc0;
+  font-size: var(--fs-base);
+  transition: all 0.2s;
+}
+
+.action-buttons :deep(.save-btn:hover) {
+  background-color: #5c6bc0;
+  border-color: #5c6bc0;
+  color: #fff;
+}
+
+.action-buttons :deep(.save-btn:active) {
+  background-color: #3949ab;
+  border-color: #3949ab;
+  color: #fff;
+}
+
 .product-info-table .product-info-value {
-  padding: 12px 16px;
+  font-size: var(--fs-base);
 }
 
-/* FreeRDP配置表格样式 */
-.freerdp-config-table .freerdp-config-value {
-  padding: 12px 16px;
+.freerdp-config-table .freerdp-config-value :deep(.el-radio-group) {
+  padding: 0;
+  min-height: unset;
+  height: 100%;
 }
 </style>

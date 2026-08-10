@@ -142,7 +142,7 @@ export default {
             ElMessage.success(t('login.loginSuccess'))
 
             if (userRole === 'admin') {
-              router.push('/home/vmlist')
+              router.push('/home/dashboard')
             } else {
               router.push('/user')
             }
