@@ -209,12 +209,6 @@
           </tr>
          </tbody>
       </table>
-      
-      <!-- 空状态 -->
-      <div v-if="!loading && !error && filteredVMs.length === 0" class="empty-state">
-        <p v-if="searchKeyword">{{ t('vmList.searchNoResult') }}</p>
-        <p v-else>{{ t('vmList.noVMData') }}</p>
-      </div>
     </div>
 
     <!-- 绑定用户对话框 -->
