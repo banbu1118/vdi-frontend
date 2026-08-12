@@ -13,6 +13,17 @@
       >
         <el-table-column prop="vmid" label="vmid" width="120" align="center"></el-table-column>
         <el-table-column prop="name" :label="t('templates.name')" align="center"></el-table-column>
+        <el-table-column prop="cpus" label="cpus" align="center"></el-table-column>
+        <el-table-column prop="mem" label="mem" align="center">
+          <template #default="scope">
+            {{ formatMemory(scope.row.mem) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="disk" label="disk" align="center">
+          <template #default="scope">
+            {{ formatDisk(scope.row.disk) }}
+          </template>
+        </el-table-column>
         <el-table-column :label="t('templates.action')" width="200" align="center">
           <template #default="scope">
             <el-button 
@@ -62,6 +73,18 @@ export default {
     const templateList = ref([])
     const loading = ref(true)
     let pollingTimer = null
+
+    const formatMemory = (bytes) => {
+      if (!bytes) return ''
+      const gb = bytes / (1024 * 1024 * 1024)
+      return gb >= 1 ? `${gb.toFixed(1)}GB` : `${(bytes / 1024 / 1024).toFixed(0)}MB`
+    }
+
+    const formatDisk = (bytes) => {
+      if (!bytes) return ''
+      const gb = bytes / (1024 * 1024 * 1024)
+      return `${gb.toFixed(0)}GB`
+    }
 
     const fetchTemplateList = async () => {
       try {
@@ -178,6 +201,8 @@ export default {
     return {
       templateList,
       loading,
+      formatMemory,
+      formatDisk,
       handleDeleteSingleTemplate,
       t
     }
@@ -188,13 +213,13 @@ export default {
 <style scoped>
 .templates-container {
   background: #f8f7fc;
-  padding: 20px;
+  padding: 16px 20px 20px 20px !important;
   width: 100%;
   min-height: 100%;
   box-sizing: border-box;
-  --fs-base: clamp(15px, 1.05vw, 20px);
-  --fs-header: clamp(16px, 1.15vw, 22px);
-  --fs-card-title: clamp(18px, 1.3vw, 26px);
+  --fs-base: 14px;
+  --fs-header: 15px;
+  --fs-card-title: 20px;
 }
 
 .template-list {
@@ -212,8 +237,9 @@ export default {
   font-size: var(--fs-card-title);
   font-weight: 600;
   color: #5c6bc0;
-  margin: 0 0 12px 0;
+  margin: 0 0 8px 0;
   padding: 0;
+  line-height: 1.2;
 }
 
 .templates-container :deep(.el-table) {
@@ -250,8 +276,9 @@ export default {
 
 .templates-container :deep(.el-table th.el-table__cell),
 .templates-container :deep(.el-table td.el-table__cell) {
-  padding-top: clamp(6px, 0.6vw, 12px);
-  padding-bottom: clamp(6px, 0.6vw, 12px);
+  height: 48px;
+  padding-top: 6px;
+  padding-bottom: 6px;
   text-align: center;
   vertical-align: middle;
   border-right: 1px solid rgba(92, 107, 192, 0.15) !important;
@@ -297,8 +324,6 @@ export default {
 @media (max-width: 768px) {
   .templates-container {
     padding: 10px;
-    --fs-base: 13px;
-    --fs-header: 14px;
     --fs-card-title: 16px;
   }
 
@@ -313,8 +338,6 @@ export default {
 
 @media (max-width: 480px) {
   .templates-container {
-    --fs-base: 12px;
-    --fs-header: 13px;
     --fs-card-title: 15px;
   }
 }

@@ -19,6 +19,7 @@
               ref="loginFormRef"
               label-position="top"
               label-width="100px"
+              hide-required-asterisk
               class="login-form"
               @submit.prevent="login"
             >
@@ -227,6 +228,10 @@ export default {
   position: relative;
 }
 
+:deep(.el-form-item__label) {
+  font-size: 15px;
+}
+
 :deep(.el-input__wrapper.is-error) {
   box-shadow: 0 0 0 1px #f56c6c inset;
 }
@@ -270,6 +275,7 @@ export default {
   font-size: clamp(1.25rem, 3vw, 1.5rem);
   line-height: 1.6;
   opacity: 0.9;
+  letter-spacing: 2px;
   margin-bottom: 40px;
 }
 
@@ -279,9 +285,12 @@ export default {
 }
 
 .login-form-wrapper {
-  background: white;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: none;
   border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   animation: slideIn 0.6s ease-out;
   width: 100%;
@@ -316,12 +325,33 @@ export default {
 
 :deep(.el-input) {
   width: 100%;
+  --el-input-height: 48px;
+}
+
+:deep(.el-input__wrapper) {
+  min-height: 48px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+:deep(.el-input__wrapper:hover) {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(92, 107, 192, 0.5);
 }
 
 :deep(.el-button) {
   width: 100%;
+  height: 48px;
   font-size: 16px;
-  padding: 12px 0;
+  padding: 0;
 }
 
 @media (max-width: 1024px) {
@@ -375,11 +405,12 @@ export default {
   }
 
   :deep(.el-input__wrapper) {
-    min-height: 44px;
+    min-height: 48px;
   }
 
   :deep(.el-button) {
-    min-height: 44px;
+    min-height: 48px;
+    height: 48px;
     font-size: 16px;
   }
 }

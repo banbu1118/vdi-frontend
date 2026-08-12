@@ -1,6 +1,11 @@
 <template>
-  <div class="users-container">
-    <!-- 操作工具栏 -->
+  <div class="users-container" ref="containerRef">
+    <!-- 用户组列表标题 -->
+    <div class="table-title">
+      {{ t('userList.title') }}
+    </div>
+
+    <!-- 用户组操作工具栏 -->
     <div class="toolbar">
       <div class="toolbar-group">
         <span class="toolbar-label">{{ t('toolbar.userGroupOperation') }}</span>
@@ -15,7 +20,7 @@
     <el-dialog
       v-model="addDialogVisible"
       :title="t('dialog.addUserGroup')"
-      width="700px"
+      width="min(560px, 80vw)"
       :close-on-click-modal="false"
       draggable
       class="users-dialog"
@@ -46,7 +51,7 @@
     <el-dialog
       v-model="editDialogVisible"
       :title="t('dialog.editUserGroup')"
-      width="700px"
+      width="min(560px, 80vw)"
       :close-on-click-modal="false"
       draggable
       class="users-dialog"
@@ -77,7 +82,7 @@
     <el-dialog
       v-model="addUserDialogVisible"
       :title="t('dialog.batchAddUsers')"
-      width="700px"
+      width="min(560px, 80vw)"
       :close-on-click-modal="false"
       draggable
       class="users-dialog"
@@ -104,58 +109,31 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="t('form.publicGateway')">
-          <el-select v-model="userForm.public_gateway" :placeholder="t('form.publicGatewayPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.public_gateway" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.direct')">
-          <el-select v-model="userForm.direct" :placeholder="t('form.directPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.direct" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.audioRedirect')">
-          <el-select v-model="userForm.audio_redirect" :placeholder="t('form.audioRedirectPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.audio_redirect" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.usbRedirect')">
-          <el-select v-model="userForm.usb_redirect" :placeholder="t('form.usbRedirectPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.usb_redirect" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.driveRedirect')">
-          <el-select v-model="userForm.drive_redirect" :placeholder="t('form.driveRedirectPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.drive_redirect" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.printerRedirect')">
-          <el-select v-model="userForm.printer_redirect" :placeholder="t('form.printerRedirectPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.printer_redirect" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.clipboardRedirect')">
-          <el-select v-model="userForm.clipboard_redirect" :placeholder="t('form.clipboardRedirectPlaceholder')" @change="handleClipboardRedirectChange">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.clipboard_redirect" :options="yesNoOptions" @change="handleClipboardRedirectChange" />
         </el-form-item>
         <el-form-item :label="t('form.clientToServerClipboard')" v-if="userForm.clipboard_redirect === '1'">
-          <el-select v-model="userForm.client_to_server_clipboard" :placeholder="t('form.clientToServerClipboardPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.client_to_server_clipboard" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.serverToClientClipboard')" v-if="userForm.clipboard_redirect === '1'">
-          <el-select v-model="userForm.server_to_client_clipboard" :placeholder="t('form.serverToClientClipboardPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.server_to_client_clipboard" :options="yesNoOptions" />
         </el-form-item>
       </el-form>
       
@@ -171,7 +149,7 @@
     <el-dialog
       v-model="editUserDialogVisible"
       :title="t('dialog.editUser')"
-      width="700px"
+      width="min(560px, 80vw)"
       :close-on-click-modal="false"
       draggable
       class="users-dialog"
@@ -192,58 +170,31 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="t('form.publicGateway')">
-          <el-select v-model="userForm.public_gateway" :placeholder="t('form.publicGatewayPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.public_gateway" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.direct')">
-          <el-select v-model="userForm.direct" :placeholder="t('form.directPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.direct" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.audioRedirect')">
-          <el-select v-model="userForm.audio_redirect" :placeholder="t('form.audioRedirectPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.audio_redirect" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.usbRedirect')">
-          <el-select v-model="userForm.usb_redirect" :placeholder="t('form.usbRedirectPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.usb_redirect" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.driveRedirect')">
-          <el-select v-model="userForm.drive_redirect" :placeholder="t('form.driveRedirectPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.drive_redirect" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.printerRedirect')">
-          <el-select v-model="userForm.printer_redirect" :placeholder="t('form.printerRedirectPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.printer_redirect" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.clipboardRedirect')">
-          <el-select v-model="userForm.clipboard_redirect" :placeholder="t('form.clipboardRedirectPlaceholder')" @change="handleClipboardRedirectChange">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.clipboard_redirect" :options="yesNoOptions" @change="handleClipboardRedirectChange" />
         </el-form-item>
         <el-form-item :label="t('form.clientToServerClipboard')" v-if="userForm.clipboard_redirect === '1'">
-          <el-select v-model="userForm.client_to_server_clipboard" :placeholder="t('form.clientToServerClipboardPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.client_to_server_clipboard" :options="yesNoOptions" />
         </el-form-item>
         <el-form-item :label="t('form.serverToClientClipboard')" v-if="userForm.clipboard_redirect === '1'">
-          <el-select v-model="userForm.server_to_client_clipboard" :placeholder="t('form.serverToClientClipboardPlaceholder')">
-            <el-option :label="t('form.yes')" :value="'1'" />
-            <el-option :label="t('form.no')" :value="'0'" />
-          </el-select>
+          <el-segmented v-model="userForm.server_to_client_clipboard" :options="yesNoOptions" />
         </el-form-item>
       </el-form>
       
@@ -259,7 +210,7 @@
     <el-dialog
       v-model="changePasswordDialogVisible"
       :title="t('toolbar.updatePassword')"
-      width="500px"
+      width="min(420px, 80vw)"
       :close-on-click-modal="false"
       draggable
       class="users-dialog"
@@ -280,11 +231,6 @@
         </div>
       </template>
     </el-dialog>
-
-    <!-- 用户列表标题 -->
-    <div class="table-title">
-      {{ t('userList.title') }}
-    </div>
 
     <!-- 选中信息 -->
     <div class="selected-info" v-if="selectedUsers.length > 0">
@@ -327,8 +273,13 @@
       </table>
     </div>
 
+    <!-- 用户列表标题 -->
+    <div class="table-title">
+      {{ t('userDetailList.title') }}
+    </div>
+
     <!-- 用户操作工具栏 -->
-    <div class="toolbar">
+    <div class="toolbar" ref="userDetailToolbarRef">
       <div class="toolbar-group">
         <span class="toolbar-label">{{ t('toolbar.userOperation') }}</span>
         <el-button class="btn btn-info" @click="showAddUserDialog">{{ t('toolbar.add') }}</el-button>
@@ -340,14 +291,55 @@
       </div>
     </div>
 
-    <!-- 用户列表标题 -->
-    <div class="table-title">
-      {{ t('userDetailList.title') }}
+    <!-- 用户筛选栏 -->
+    <div class="users-search-bar" ref="userDetailSearchBarRef">
+      <el-input
+        v-model="searchKeyword"
+        class="search-input"
+        :placeholder="t('userDetailList.searchPlaceholder')"
+        clearable
+      >
+        <template #prefix>
+          <el-icon><Search /></el-icon>
+        </template>
+      </el-input>
+      <el-select
+        v-model="accountStatusFilter"
+        class="status-select"
+        :placeholder="t('userDetailList.accountStatusLabel')"
+        clearable
+      >
+        <el-option :value="''" :label="t('userDetailList.accountStatusAll')" />
+        <el-option :value="'0'" :label="t('userDetailList.accountStatusEnabled')" />
+        <el-option :value="'1'" :label="t('userDetailList.accountStatusDisabled')" />
+      </el-select>
+      <div class="selected-info" v-if="selectedUserDetails.length > 0">
+        {{ t('userDetailList.selectedUsers', { count: selectedUserDetails.length }) }}
+      </div>
+      <div class="users-search-bar-pagination" v-if="totalPagesUserDetails > 1">
+        <el-button
+          class="page-btn"
+          :disabled="currentPageUserDetails === 1"
+          @click="currentPageUserDetails--"
+        >
+          {{ t('vmList.previousPage') }}
+        </el-button>
+        <span class="page-info">
+          {{ t('vmList.pageInfo', { current: currentPageUserDetails, total: totalPagesUserDetails, count: filteredUserDetails.length }) }}
+        </span>
+        <el-button
+          class="page-btn"
+          :disabled="currentPageUserDetails === totalPagesUserDetails"
+          @click="currentPageUserDetails++"
+        >
+          {{ t('vmList.nextPage') }}
+        </el-button>
+      </div>
     </div>
 
     <!-- 用户列表 -->
-    <div class="table-container">
-      <table class="users-table">
+    <div class="table-container" ref="userDetailTableContainer">
+      <table class="users-table user-detail-table">
         <thead>
           <tr>
             <th class="col-checkbox">
@@ -382,7 +374,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in userDetailList" :key="user.username">
+          <tr v-for="user in paginatedUserDetails" :key="user.username">
             <td>
               <input 
                 type="checkbox" 
@@ -426,42 +418,119 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import axios from 'axios'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Search } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 
 export default {
   name: 'Users',
+  components: { Search },
   setup() {
     const { t } = useI18n()
     // 响应式数据
     const selectedUsers = ref([])
     const selectedUserDetails = ref([])
     const currentPage = ref(1)
+    const currentPageUserDetails = ref(1)
     const pageSize = ref(10)
     const windowHeight = ref(window.innerHeight)
     const loading = ref(false)
     const error = ref('')
+    const containerRef = ref(null)
+    const userDetailToolbarRef = ref(null)
+    const userDetailSearchBarRef = ref(null)
+    const userDetailTableContainer = ref(null)
+    let resizeObserver = null
+    let pendingPageSizeUpdate = false
+
+    const schedulePageSizeUpdate = () => {
+      if (pendingPageSizeUpdate) return
+      pendingPageSizeUpdate = true
+      nextTick(() => {
+        requestAnimationFrame(() => {
+          updatePageSize()
+          pendingPageSizeUpdate = false
+        })
+      })
+    }
     
     // 用户详细列表数据
     const userDetailList = ref([])
+
+    // 搜索与筛选
+    const searchKeyword = ref('')
+    const accountStatusFilter = ref('')
+
+    const filteredUserDetails = computed(() => {
+      const kw = searchKeyword.value.trim().toLowerCase()
+      const af = accountStatusFilter.value
+      return userDetailList.value.filter(u => {
+        const matchKw = !kw || (
+          (u.username || '').toLowerCase().includes(kw) ||
+          (u.userGroup || '').toLowerCase().includes(kw)
+        )
+        const matchStatus = af === '' || u.disabled === af
+        return matchKw && matchStatus
+      })
+    })
+
+    watch(searchKeyword, () => {
+      selectedUserDetails.value = []
+      currentPageUserDetails.value = 1
+    })
+    watch(accountStatusFilter, () => {
+      selectedUserDetails.value = []
+      currentPageUserDetails.value = 1
+    })
+
+    // 用户详情分页切片
+    const totalPagesUserDetails = computed(() => {
+      return Math.ceil(filteredUserDetails.value.length / pageSize.value)
+    })
+
+    const paginatedUserDetails = computed(() => {
+      const start = (currentPageUserDetails.value - 1) * pageSize.value
+      const end = start + pageSize.value
+      return filteredUserDetails.value.slice(start, end)
+    })
+
+    watch(userDetailList, () => {
+      schedulePageSizeUpdate()
+    })
     
     // 虚拟机组列表数据
     const vmGroups = ref([])
     
-    // 根据窗口高度动态计算每页显示条数
+    // 根据窗口高度动态计算每页显示条数（真实 DOM 测量）
     const updatePageSize = () => {
       windowHeight.value = window.innerHeight
-      const tableHeaderHeight = 180
-      const rowHeight = 40
-      const availableHeight = windowHeight.value - tableHeaderHeight
-      pageSize.value = Math.max(5, Math.floor(availableHeight / rowHeight))
+      const tableContainer = userDetailTableContainer.value
+      if (!tableContainer) return
+
+      const tableHeaderRow = tableContainer.querySelector('.users-table thead tr')
+      if (!tableHeaderRow) return
+
+      const allRows = tableContainer.querySelectorAll('.users-table tbody tr')
+      let rowHeight = 48
+      if (allRows.length >= 2) {
+        rowHeight = allRows[1].offsetHeight
+      } else if (allRows.length === 1) {
+        rowHeight = allRows[0].offsetHeight
+      }
+      const tableHeaderHeight = tableHeaderRow.offsetHeight
+
+      const tcRect = tableContainer.getBoundingClientRect()
+      const theadTopRelative = tableHeaderRow.getBoundingClientRect().top - tcRect.top
+
+      const availableHeight = tableContainer.clientHeight - theadTopRelative - tableHeaderHeight
+      pageSize.value = Math.max(5, Math.floor((availableHeight - 6) / rowHeight))
     }
     
     // 监听窗口大小变化
     const handleResize = () => {
-      updatePageSize()
+      schedulePageSizeUpdate()
     }
     
     // 排序配置
@@ -677,15 +746,20 @@ export default {
 
     // 用户列表是否全选
     const isAllUserDetailsSelected = computed(() => {
-      return userDetailList.value.length > 0 && selectedUserDetails.value.length === userDetailList.value.length
+      return filteredUserDetails.value.length > 0
+        && filteredUserDetails.value.every(u => selectedUserDetails.value.includes(u.username))
     })
 
-    // 切换用户全选
     const toggleSelectAllUserDetails = () => {
       if (isAllUserDetailsSelected.value) {
-        selectedUserDetails.value = []
+        selectedUserDetails.value = selectedUserDetails.value.filter(
+          name => !filteredUserDetails.value.some(u => u.username === name)
+        )
       } else {
-        selectedUserDetails.value = userDetailList.value.map(user => user.username)
+        const filteredNames = filteredUserDetails.value.map(u => u.username)
+        const existing = new Set(selectedUserDetails.value)
+        filteredNames.forEach(n => existing.add(n))
+        selectedUserDetails.value = Array.from(existing)
       }
     }
 
@@ -735,6 +809,11 @@ export default {
       client_to_server_clipboard: '0',
       server_to_client_clipboard: '0'
     })
+    // 是/否 二选一选项（el-segmented 左右点击选择）
+    const yesNoOptions = computed(() => [
+      { label: t('form.yes'), value: '1' },
+      { label: t('form.no'), value: '0' }
+    ])
     const passwordForm = ref({
       username: '',
       password: ''
@@ -1352,36 +1431,53 @@ export default {
       }
     }
 
-    // 组件挂载时启动轮询
     onMounted(() => {
       startPolling()
-      updatePageSize()
+      nextTick(() => {
+        if (userDetailTableContainer.value && 'ResizeObserver' in window) {
+          resizeObserver = new ResizeObserver(() => schedulePageSizeUpdate())
+          resizeObserver.observe(userDetailTableContainer.value)
+        }
+        updatePageSize()
+      })
       window.addEventListener('resize', handleResize)
-      // 添加页面可见性监听
       document.addEventListener('visibilitychange', handleVisibilityChange)
     })
 
-    // 组件卸载前停止轮询
     onBeforeUnmount(() => {
       stopPolling()
       window.removeEventListener('resize', handleResize)
-      // 清理页面可见性监听器
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      if (resizeObserver) {
+        resizeObserver.disconnect()
+        resizeObserver = null
+      }
     })
 
     return {
+      Search,
       selectedUsers,
       selectedUserDetails,
       currentPage,
+      currentPageUserDetails,
       pageSize,
       windowHeight,
       loading,
       error,
+      containerRef,
+      userDetailToolbarRef,
+      userDetailSearchBarRef,
+      userDetailTableContainer,
       userList,
       userDetailList,
+      filteredUserDetails,
+      paginatedUserDetails,
+      totalPagesUserDetails,
       vmGroups,
       userGroups,
       expandedRemarks,
+      searchKeyword,
+      accountStatusFilter,
       paginatedUsers,
       totalPages,
       toggleSelectAll,
@@ -1417,6 +1513,7 @@ export default {
       changePasswordDialogVisible,
       form,
       userForm,
+      yesNoOptions,
       passwordForm,
       resetForm,
       resetUserForm,
@@ -1433,14 +1530,16 @@ export default {
 <style scoped>
 .users-container {
   background: #f8f7fc;
-  padding: 20px;
+  padding: 16px 20px 20px 20px !important;
   width: 100%;
-  min-height: 100%;
+  height: 100%;
   box-sizing: border-box;
-  --fs-base: clamp(15px, 1.05vw, 20px);
-  --fs-header: clamp(16px, 1.15vw, 22px);
-  --fs-card-title: clamp(18px, 1.3vw, 26px);
-  --fs-toolbar: clamp(13px, 0.9vw, 17px);
+  display: flex;
+  flex-direction: column;
+  --fs-base: 14px;
+  --fs-header: 15px;
+  --fs-card-title: 20px;
+  --fs-toolbar: 15px;
 }
 
 .toolbar {
@@ -1448,10 +1547,11 @@ export default {
   flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 16px;
-  padding: 12px 16px;
+  padding: 0 16px;
   background: #fcfcfd;
   border: 1px solid rgba(92, 107, 192, 0.25);
   border-radius: 4px;
+  align-items: center;
 }
 
 .toolbar-group {
@@ -1459,12 +1559,13 @@ export default {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  height: 46px;
 }
 
 .toolbar-label {
   font-weight: 600;
   color: #909399;
-  font-size: var(--fs-header);
+  font-size: 17px;
   white-space: nowrap;
 }
 
@@ -1472,7 +1573,9 @@ export default {
   font-size: var(--fs-card-title);
   font-weight: 600;
   color: #5c6bc0;
-  margin: 20px 0 12px 0;
+  margin: 0 0 8px 0;
+  padding: 0;
+  line-height: 1.2;
 }
 
 .selected-info {
@@ -1485,35 +1588,199 @@ export default {
   font-size: var(--fs-base);
 }
 
+.users-search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: clamp(8px, 0.8vw, 16px);
+  margin-bottom: 12px;
+}
+
+.users-search-bar .search-input {
+  width: clamp(160px, 18vw, 240px);
+  flex-shrink: 0;
+  font-size: var(--fs-header);
+}
+
+.users-search-bar .search-input :deep(.el-input__wrapper) {
+  height: clamp(32px, 2.6vw, 40px);
+  border-radius: 4px;
+  background-color: #fff;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  box-shadow: none;
+  transition: all 0.2s;
+}
+
+.users-search-bar .search-input :deep(.el-input__wrapper:hover),
+.users-search-bar .search-input :deep(.el-input__wrapper.is-focus) {
+  border-color: #5c6bc0;
+  box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.15);
+}
+
+.users-search-bar .status-select {
+  width: clamp(100px, 10vw, 150px);
+  flex-shrink: 0;
+  font-size: var(--fs-header);
+}
+
+.users-search-bar :deep(.el-select .el-select__wrapper) {
+  height: clamp(32px, 2.6vw, 40px);
+  border-radius: 4px;
+  background-color: #fff;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  box-shadow: none;
+  transition: all 0.2s;
+  min-height: unset;
+}
+
+.users-search-bar :deep(.el-select .el-select__wrapper:hover),
+.users-search-bar :deep(.el-select .el-select__wrapper.is-focused) {
+  border-color: #5c6bc0;
+  box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.15);
+}
+
+.users-search-bar :deep(.el-select__placeholder),
+.users-search-bar :deep(.el-select__selected-item) {
+  font-size: var(--fs-header);
+  color: #303133;
+  line-height: 30px;
+}
+
+.users-search-bar :deep(.el-select__placeholder) {
+  color: #b0b3b8;
+}
+
+.users-search-bar :deep(.el-input__inner) {
+  font-size: var(--fs-header);
+  color: #303133;
+}
+
+.users-search-bar :deep(.el-input__inner::placeholder) {
+  color: #b0b3b8;
+}
+
+.users-search-bar .selected-info {
+  margin-bottom: 0;
+  height: clamp(32px, 2.6vw, 40px);
+  line-height: clamp(32px, 2.6vw, 40px);
+  padding: 0 clamp(10px, 0.8vw, 14px);
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
 .table-container {
-  overflow-x: auto;
+  overflow-x: scroll;
   overflow-y: visible;
   margin-bottom: 20px;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  scrollbar-width: auto;
+  scrollbar-color: rgba(92, 107, 192, 0.6) rgba(92, 107, 192, 0.12);
+  padding-bottom: 2px;
+}
+
+.table-container:last-child {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
+}
+
+.table-container::-webkit-scrollbar {
+  height: 10px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: rgba(92, 107, 192, 0.12);
   border-radius: 4px;
-  overflow: hidden;
-  border: 1px solid rgba(92, 107, 192, 0.25);
-  background: #fcfcfd;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: rgba(92, 107, 192, 0.55);
+  border-radius: 4px;
+  min-width: 60px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(92, 107, 192, 0.75);
 }
 
 .users-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  border-radius: 4px;
   background: #fcfcfd;
   font-size: var(--fs-base);
 }
 
+.users-table.user-detail-table {
+  width: 100%;
+}
+
+.users-table.user-detail-table .col-username {
+  min-width: 80px;
+}
+
+.users-table .col-checkbox,
+.users-table tbody td:first-child {
+  min-width: 44px !important;
+  padding-left: clamp(2px, 0.2vw, 5px) !important;
+  padding-right: clamp(2px, 0.2vw, 5px) !important;
+}
+
+.users-table.user-detail-table .col-user-group {
+  min-width: 80px;
+}
+
+.users-table.user-detail-table .col-user-status {
+  min-width: 70px;
+}
+
+.users-table.user-detail-table th.col-status,
+.users-table.user-detail-table td.col-status {
+  min-width: 60px;
+}
+
+.users-table.user-detail-table .col-last-login {
+  min-width: 110px;
+}
+
+.users-table.user-detail-table .col-login-ip {
+  min-width: 100px;
+}
+
+.users-table.user-detail-table .col-client-type {
+  min-width: 70px;
+}
+
+.users-table.user-detail-table .col-public-gateway {
+  min-width: 70px;
+}
+
+.users-table.user-detail-table .col-direct-connect {
+  min-width: 60px;
+}
+
+/* 重定向/粘贴方向列（是/否短值列），参照 VMList 各列保持舒适宽度 */
+.users-table.user-detail-table th:nth-child(n+11):nth-child(-n+17),
+.users-table.user-detail-table td:nth-child(n+11):nth-child(-n+17) {
+  min-width: 70px;
+}
+
 .users-table th,
 .users-table td {
-  padding-top: clamp(6px, 0.6vw, 12px);
-  padding-bottom: clamp(6px, 0.6vw, 12px);
-  padding-left: clamp(10px, 0.8vw, 16px);
-  padding-right: clamp(10px, 0.8vw, 16px);
+  height: 48px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-left: clamp(6px, 0.6vw, 12px);
+  padding-right: clamp(6px, 0.6vw, 12px);
   text-align: center;
   vertical-align: middle;
   border-right: 1px solid rgba(92, 107, 192, 0.15);
   border-bottom: 1px solid rgba(92, 107, 192, 0.15);
+  box-sizing: border-box;
 }
 
 .users-table th:last-child,
@@ -1530,7 +1797,13 @@ export default {
   font-weight: 600;
   color: #909399;
   border-bottom: 1px solid rgba(92, 107, 192, 0.25);
-  font-size: var(--fs-header);
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.users-table td {
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .users-table tbody tr:hover {
@@ -1545,56 +1818,51 @@ export default {
 }
 
 .col-checkbox {
-  width: 60px;
+  min-width: 60px;
   text-align: center;
 }
 
 .col-name {
-  width: 150px;
+  min-width: 150px;
 }
 
 .col-email {
-  width: 250px;
+  min-width: 250px;
 }
 
 .users-table th.col-status,
 .users-table td.col-status {
-  width: 100px;
+  min-width: 100px;
   text-align: center;
 }
 
 .col-vm-group {
-  width: 200px;
+  min-width: 200px;
 }
 
 .col-description {
-  width: 300px;
+  min-width: 300px;
 }
 
 /* 用户列表列宽 */
 .col-username {
-  width: 100px;
+  min-width: 100px;
 }
 
 .col-password {
-  width: 100px;
+  min-width: 100px;
 }
 
 .col-user-group {
-  width: 100px;
-}
-
-.col-email {
-  width: 150px;
+  min-width: 100px;
 }
 
 .col-phone {
-  width: 120px;
+  min-width: 120px;
 }
 
 .col-remark {
-  width: 200px;
-  min-width: 80px;
+  min-width: 100px;
 }
 
 .remark-container {
@@ -1628,36 +1896,36 @@ export default {
 }
 
 .col-user-status {
-  width: 80px;
+  min-width: 80px;
   text-align: center;
 }
 
 .col-fail-count {
-  width: 100px;
+  min-width: 100px;
 }
 
 .col-unlock-time {
-  width: 120px;
+  min-width: 120px;
 }
 
 .col-last-login {
-  width: 150px;
+  min-width: 150px;
 }
 
 .col-login-ip {
-  width: 120px;
+  min-width: 120px;
 }
 
 .col-is-public {
-  width: 100px;
+  min-width: 100px;
 }
 
 .col-client-type {
-  width: 100px;
+  min-width: 100px;
 }
 
 .col-public-gateway {
-  width: 100px;
+  min-width: 100px;
 }
 
 .col-direct-connect,
@@ -1668,13 +1936,18 @@ export default {
 .col-clipboard-redirect,
 .col-copy-to-vm,
 .col-copy-from-vm {
-  width: 80px;
+  min-width: 80px;
   text-align: center;
 }
 
 .users-container :deep(.toolbar .el-button) {
-  font-size: var(--fs-header);
-  padding: clamp(6px, 0.5vw, 10px) clamp(12px, 1vw, 20px);
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: 32px !important;
+  font-size: 15px !important;
   border-radius: 4px;
   font-weight: 500;
   transition: all 0.2s;
@@ -1795,16 +2068,56 @@ export default {
     padding: 8px;
   }
 }
+
+.users-search-bar .users-search-bar-pagination {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 0.6vw, 12px);
+  margin-left: auto;
+  font-size: var(--fs-header);
+}
+
+.users-search-bar-pagination .page-btn {
+  padding: clamp(4px, 0.4vw, 8px) clamp(10px, 0.9vw, 16px);
+  height: clamp(32px, 2.6vw, 40px);
+  border-radius: 4px;
+  font-size: var(--fs-header);
+}
+
+.users-container .page-btn {
+  padding: clamp(6px, 0.5vw, 10px) clamp(12px, 1vw, 20px);
+  border: 1px solid rgba(92, 107, 192, 0.4);
+  background: rgba(92, 107, 192, 0.12);
+  color: #5c6bc0;
+  transition: all 0.2s;
+  font-size: var(--fs-base);
+}
+
+.users-container .page-btn:hover:not(:disabled) {
+  background: #5c6bc0;
+  color: #fff;
+  border-color: #5c6bc0;
+}
+
+.users-container .page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.users-container .page-info {
+  color: #606266;
+}
 </style>
 
 <style>
 .users-dialog {
-  --d-fs-base: clamp(15px, 1.05vw, 20px);
-  --d-fs-header: clamp(16px, 1.15vw, 22px);
+  --d-fs-base: 15px;
+  --d-fs-header: 17px;
 }
 
 .users-dialog .el-dialog__title {
-  font-size: var(--d-fs-header);
+  font-size: 17px;
+  color: #000;
 }
 
 .users-dialog .el-dialog__body {
@@ -1852,17 +2165,19 @@ export default {
   font-size: clamp(12px, 0.85vw, 14px);
 }
 
-@media (max-width: 768px) {
-  .users-dialog {
-    --d-fs-base: 13px;
-    --d-fs-header: 14px;
-  }
+.users-dialog .el-segmented {
+  --el-segmented-item-selected-bg-color: #5c6bc0;
+  --el-segmented-item-selected-color: #fff;
+  --el-segmented-item-hover-bg-color: rgba(92, 107, 192, 0.15);
+  font-size: var(--d-fs-base);
 }
 
-@media (max-width: 480px) {
-  .users-dialog {
-    --d-fs-base: 12px;
-    --d-fs-header: 13px;
-  }
+.users-dialog .el-segmented .el-segmented__item {
+  font-size: var(--d-fs-base);
+  padding: 0 26px;
+}
+
+.users-dialog .el-segmented .el-segmented__item:not(.is-selected):hover {
+  color: #5c6bc0;
 }
 </style>

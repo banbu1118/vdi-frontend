@@ -295,7 +295,7 @@ export default {
     setStaticIP: 'Set Static IP',
     updateUser: 'Sync Username',
     updatePassword: 'Update Password',
-    unlockUser: 'Unlock User',
+    unlockUser: 'Unlock',
     updateRDPPort: 'Sync RDP Port',
     bindUser: 'Bind New User',
     unbindUser: 'Unbind User',
@@ -315,6 +315,7 @@ export default {
     enable: 'Enable'
   },
   vmList: {
+    title: 'VM List',
     refreshSuccess: 'Refresh successful, currently {count} VMs',
     refreshFailed: 'Refresh failed: API returned incorrect data format',
     networkError: 'Network error: {error}',
@@ -332,13 +333,23 @@ export default {
     confirmDeleteVM: 'Are you sure you want to delete this VM?',
     vmDeletedSuccess: 'VM deleted successfully',
     deleteFailed: 'Delete failed:',
-    pleaseEnterVMName: 'Please enter VM name'
+    pleaseEnterVMName: 'Please enter VM name',
+    searchPlaceholder: 'vmid / name / group / user_name / ip',
+    searchNoResult: 'No matching VMs found',
+    statusFilterLabel: 'Runtime Status',
+    statusFilterAll: 'All',
+    statusFilterRunning: 'Running',
+    statusFilterStopped: 'Stopped'
   },
   groupList: {
     title: 'VM Group',
     checkbox: 'Single Select',
     name: 'VM Group',
     description: 'Description',
+    vmCount: 'VM Count',
+    templateName: 'Template Name',
+    cpus: 'CPUs',
+    mem: 'Memory',
     snapshot: 'Snapshot',
     selectedGroups: 'Selected {count} VM groups'
   },
@@ -355,15 +366,15 @@ export default {
   userDetailList: {
     title: 'User List',
     checkbox: 'Single Select',
-    username: 'Username',
-    userGroup: 'User Group',
+    username: 'User',
+    userGroup: 'Group',
     remark: 'Remark',
-    accountStatus: 'Account Status',
-    loginStatus: 'Login Status',
-    loginTime: 'Login Time',
+    accountStatus: 'Status',
+    loginStatus: 'Online',
+    loginTime: 'Last Login',
     loginIP: 'Login IP',
-    loginMode: 'Login Mode',
-    publicConnection: 'Public Connection',
+    loginMode: 'Client',
+    publicConnection: 'Public Gateway',
     directConnect: 'Direct Connect',
     audioRedirect: 'Audio Redirect',
     usbRedirect: 'USB Redirect',
@@ -373,7 +384,14 @@ export default {
     copyToVM: 'Paste to VM',
     copyFromVM: 'Paste to Client',
     online: 'Online',
-    offline: 'Offline'
+    offline: 'Offline',
+    searchPlaceholder: 'Username / User Group',
+    searchNoResult: 'No matching users found',
+    accountStatusLabel: 'Account Status',
+    accountStatusAll: 'All',
+    accountStatusEnabled: 'Enabled',
+    accountStatusDisabled: 'Disabled',
+    selectedUsers: '{count} user(s) selected'
   },
   dialog: {
     bindUser: 'Bind User',
@@ -512,6 +530,7 @@ export default {
     enabled: 'Enabled'
   },
   settings: {
+    title: 'System Settings',
     pveConfig: 'PVE Configuration',
     changeAdminPassword: 'Change Admin Password',
     ipConfig: 'Management Network Configuration',

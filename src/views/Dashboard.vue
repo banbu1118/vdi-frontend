@@ -681,12 +681,14 @@ export default {
   min-height: 100%;
   box-sizing: border-box;
   margin: 0;
-  padding: 20px;
+  padding: 16px 20px 20px 20px !important;
   background: #f8f7fc;
+  display: flex;
+  flex-direction: column;
   /* 响应式字体变量：最小/理想/最大 */
   --fs-base: clamp(15px, 1.05vw, 20px);
   --fs-header: clamp(16px, 1.15vw, 22px);
-  --fs-card-title: clamp(18px, 1.3vw, 26px);
+  --fs-card-title: 20px;
   --fs-progress-text: clamp(15px, 1vw, 20px);
   --fs-progress-label: clamp(13px, 0.85vw, 16px);
   --fs-detail: clamp(12px, 0.8vw, 16px);
@@ -712,8 +714,9 @@ export default {
   font-size: var(--fs-card-title);
   font-weight: 600;
   color: #5c6bc0;
-  margin: 0 0 clamp(6px, 0.6vw, 12px) 0;
+  margin: 0 0 8px 0;
   padding: 0;
+  line-height: 1.2;
 }
 
 .card-header {
@@ -744,12 +747,12 @@ export default {
 }
 
 .dashboard-container :deep(.el-table th .cell) {
-  font-size: var(--fs-header);
+  font-size: 15px;
   font-weight: 600;
 }
 
 .dashboard-container :deep(.el-table td .cell) {
-  font-size: var(--fs-base);
+  font-size: 14px;
 }
 
 .dashboard-container :deep(.el-table__header-wrapper),
@@ -767,8 +770,9 @@ export default {
 
 .dashboard-container :deep(.el-table th.el-table__cell),
 .dashboard-container :deep(.el-table td.el-table__cell) {
-  padding-top: clamp(6px, 0.6vw, 12px);
-  padding-bottom: clamp(6px, 0.6vw, 12px);
+  height: 48px;
+  padding-top: 6px;
+  padding-bottom: 6px;
   text-align: center;
   vertical-align: middle;
 }

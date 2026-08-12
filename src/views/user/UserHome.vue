@@ -39,7 +39,7 @@
     <el-dialog
       :title="t('userHome.changePasswordTitle')"
       v-model="showChangePasswordDialog"
-      width="500px"
+      width="min(420px, 80vw)"
       :close-on-click-modal="false"
       draggable
       top="50%"

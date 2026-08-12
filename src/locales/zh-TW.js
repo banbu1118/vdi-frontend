@@ -294,7 +294,7 @@ export default {
     setStaticIP: '設定靜態IP',
     updateUser: '同步使用者名',
     updatePassword: '更新密碼',
-    unlockUser: '解除使用者鎖定',
+    unlockUser: '解鎖',
     updateRDPPort: '同步RDP連接埠',
     bindUser: '綁定新用戶',
     unbindUser: '解除綁定',
@@ -314,6 +314,7 @@ export default {
     enable: '啟用'
   },
   vmList: {
+    title: '虛擬機列表',
     refreshSuccess: '刷新成功，目前共 {count} 台虛擬機',
     refreshFailed: '刷新失敗：API返回資料格式不正確',
     networkError: '網路錯誤: {error}',
@@ -331,13 +332,23 @@ export default {
     confirmDeleteVM: '確定要刪除這個虛擬機嗎？',
     vmDeletedSuccess: '虛擬機刪除成功',
     deleteFailed: '刪除失敗:',
-    pleaseEnterVMName: '請輸入虛擬機名稱'
+    pleaseEnterVMName: '請輸入虛擬機名稱',
+    searchPlaceholder: 'vmid / name / group / user_name / ip',
+    searchNoResult: '沒有找到符合的虛擬機',
+    statusFilterLabel: '運行狀態',
+    statusFilterAll: '全部',
+    statusFilterRunning: '執行中',
+    statusFilterStopped: '已關機'
   },
   groupList: {
     title: '虛擬機組',
     checkbox: '單選',
     name: '虛擬機組',
     description: '描述',
+    vmCount: '虛擬機數量',
+    templateName: '模板名稱',
+    cpus: 'CPU數量',
+    mem: '記憶體',
     snapshot: '快照',
     selectedGroups: '已選擇 {count} 個虛擬機組'
   },
@@ -354,15 +365,15 @@ export default {
   userDetailList: {
     title: '用戶列表',
     checkbox: '單選',
-    username: '用戶名',
-    userGroup: '用戶組',
+    username: '用戶',
+    userGroup: '組',
     remark: '備註',
-    accountStatus: '賬戶狀態',
-    loginStatus: '登陸狀態',
-    loginTime: '登陸時間',
+    accountStatus: '狀態',
+    loginStatus: '在線',
+    loginTime: '最近登錄',
     loginIP: '登陸IP',
-    loginMode: '登陸模式',
-    publicConnection: '公網連接',
+    loginMode: '客戶端',
+    publicConnection: '公網網關',
     directConnect: '直連',
     audioRedirect: '聲音重定向',
     usbRedirect: 'USB重定向',
@@ -372,7 +383,14 @@ export default {
     copyToVM: '向虛擬機粘貼',
     copyFromVM: '向客戶端粘貼',
     online: '在線',
-    offline: '離線'
+    offline: '離線',
+    searchPlaceholder: '用戶名 / 用戶組',
+    searchNoResult: '沒有找到符合的用戶',
+    accountStatusLabel: '賬戶狀態',
+    accountStatusAll: '全部',
+    accountStatusEnabled: '已啟用',
+    accountStatusDisabled: '已禁用',
+    selectedUsers: '已選 {count} 個用戶'
   },
   dialog: {
     bindUser: '綁定使用者',
@@ -511,6 +529,7 @@ export default {
     usernamePlaceholder: '請輸入用戶名'
   },
   settings: {
+    title: '系統設置',
     pveConfig: 'PVE配置',
     changeAdminPassword: '修改管理員密碼',
     ipConfig: '管理網路配置',

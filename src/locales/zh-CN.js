@@ -1,9 +1,9 @@
 export default {
   login: {
-    title: '登录',
+    title: '登 录',
     username: '用户名',
     password: '密码',
-    login: '登录',
+    login: '登 录',
     required: '不能为空',
     passwordMinLength: '长度不能少于6位',
     usernamePlaceholder: '请输入用户名',
@@ -298,7 +298,7 @@ export default {
     setStaticIP: '设置静态IP',
     updateUser: '同步用户名',
     updatePassword: '更新密码',
-    unlockUser: '解除用户锁定',
+    unlockUser: '解锁',
     updateRDPPort: '同步RDP端口',
     bindUser: '绑定新用户',
     unbindUser: '解除绑定',
@@ -318,6 +318,7 @@ export default {
     enable: '启用'
   },
   vmList: {
+    title: '虚拟机列表',
     refreshSuccess: '刷新成功，当前共 {count} 台虚拟机',
     refreshFailed: '刷新失败：API返回数据格式不正确',
     networkError: '网络错误: {error}',
@@ -335,13 +336,23 @@ export default {
     confirmDeleteVM: '确定要删除这个虚拟机吗？',
     vmDeletedSuccess: '虚拟机删除成功',
     deleteFailed: '删除失败:',
-    pleaseEnterVMName: '请输入虚拟机名称'
+    pleaseEnterVMName: '请输入虚拟机名称',
+    searchPlaceholder: 'vmid / name / group / user_name / ip',
+    searchNoResult: '没有找到匹配的虚拟机',
+    statusFilterLabel: '运行状态',
+    statusFilterAll: '全部',
+    statusFilterRunning: '运行中',
+    statusFilterStopped: '已关机'
   },
   groupList: {
     title: '虚拟机组',
     checkbox: '单选',
     name: '虚拟机组',
     description: '描述',
+    vmCount: '虚拟机数量',
+    templateName: '模板名称',
+    cpus: 'CPU数量',
+    mem: '内存',
     snapshot: '快照',
     selectedGroups: '已选择 {count} 个虚拟机组'
   },
@@ -358,15 +369,15 @@ export default {
   userDetailList: {
     title: '用户列表',
     checkbox: '单选',
-    username: '用户名',
-    userGroup: '用户组',
+    username: '用户',
+    userGroup: '组',
     remark: '备注',
-    accountStatus: '账户状态',
-    loginStatus: '登陆状态',
-    loginTime: '登陆时间',
+    accountStatus: '状态',
+    loginStatus: '在线',
+    loginTime: '最近登录',
     loginIP: '登陆IP',
-    loginMode: '登陆模式',
-    publicConnection: '公网连接',
+    loginMode: '客户端',
+    publicConnection: '公网网关',
     directConnect: '直连',
     audioRedirect: '声音重定向',
     usbRedirect: 'USB重定向',
@@ -376,7 +387,14 @@ export default {
     copyToVM: '向虚拟机粘贴',
     copyFromVM: '向客户端粘贴',
     online: '在线',
-    offline: '离线'
+    offline: '离线',
+    searchPlaceholder: '用户名 / 用户组',
+    searchNoResult: '没有找到匹配的用户',
+    accountStatusLabel: '账户状态',
+    accountStatusAll: '全部',
+    accountStatusEnabled: '已启用',
+    accountStatusDisabled: '已禁用',
+    selectedUsers: '已选 {count} 个用户'
   },
   dialog: {
     bindUser: '绑定用户',
@@ -515,6 +533,7 @@ export default {
     usernamePlaceholder: '请输入用户名'
   },
   settings: {
+    title: '系统设置',
     pveConfig: 'PVE配置',
     changeAdminPassword: '修改管理员密码',
     ipConfig: '管理网络配置',

@@ -1,7 +1,7 @@
 <template>
   <div class="home-container">
     <!-- 侧边栏导航 -->
-    <el-aside :width="isCollapse ? '64px' : '240px'" class="sidebar" :class="{ 'collapsed': isCollapse }">
+    <el-aside class="sidebar" :class="{ 'collapsed': isCollapse }">
       <div class="logo" :class="{ 'logo-collapsed': isCollapse }" @click="redirectToVmlist">
         <h3 v-if="!isCollapse">OpenDesk</h3>
         <div v-else class="logo-short">OD</div>
@@ -67,7 +67,7 @@
     </el-aside>
     
     <!-- 主内容区域 -->
-    <div class="main-content" :class="{ 'content-expanded': isCollapse }">
+    <div class="main-content">
       <!-- 内容展示区域 -->
       <el-main>
         <router-view />
@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
@@ -194,6 +194,8 @@ export default {
       }
     })
     
+    let sidebarObserver = null
+
     // 初始化
     onMounted(() => {
       // 从localStorage获取菜单折叠状态
@@ -211,6 +213,29 @@ export default {
         if (route.path === '/home' || route.path === '/') {
           router.replace('/home/vmlist')
         }
+      }
+
+      // 监听侧边栏宽度变化，同步到 CSS 变量
+      nextTick(() => {
+        const sidebar = document.querySelector('.sidebar')
+        if (sidebar && 'ResizeObserver' in window) {
+          const updateWidth = () => {
+            const w = sidebar.getBoundingClientRect().width
+            document.documentElement.style.setProperty('--sidebar-width', w + 'px')
+          }
+          sidebarObserver = new ResizeObserver(() => {
+            requestAnimationFrame(updateWidth)
+          })
+          sidebarObserver.observe(sidebar)
+          updateWidth()
+        }
+      })
+    })
+
+    onBeforeUnmount(() => {
+      if (sidebarObserver) {
+        sidebarObserver.disconnect()
+        sidebarObserver = null
       }
     })
     
@@ -250,7 +275,10 @@ export default {
   box-shadow: 2px 0 6px rgba(92, 107, 192, 0.3);
   transition: width 0.3s ease;
   overflow: hidden;
-  --sidebar-fs-menu: clamp(16px, 1.15vw, 22px);
+  width: fit-content;
+  min-width: 200px;
+  max-width: 340px;
+  --sidebar-fs-menu: 15px;
   --sidebar-fs-logo: clamp(18px, 1.3vw, 26px);
   --sidebar-fs-logo-short: clamp(18px, 1.3vw, 26px);
   --sidebar-fs-logo-desc: clamp(12px, 0.8vw, 16px);
@@ -259,13 +287,14 @@ export default {
 
 .sidebar.collapsed {
   width: 64px !important;
+  min-width: 64px;
 }
 
 /* Logo样式 */
 .logo {
-  padding: 20px 0;
-  text-align: center;
-  border-bottom: 1px solid #3949ab;
+  padding: 0;
+  height: 48px;
+  box-sizing: border-box;
   background-color: #5c6bc0;
   display: flex;
   flex-direction: column;
@@ -274,7 +303,8 @@ export default {
 }
 
 .logo.logo-collapsed {
-  padding: 15px 0;
+  height: 48px;
+  padding: 0;
 }
 
 .logo h3 {
@@ -286,6 +316,7 @@ export default {
   text-align: left;
   padding-left: 49px;
   line-height: 1.2;
+  padding-top: 0;
 }
 
 .logo-desc {
@@ -312,7 +343,7 @@ export default {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 56px;
+  height: 48px;
   background-color: #5c6bc0;
   border-radius: 0;
   display: flex;
@@ -333,14 +364,15 @@ export default {
 
 /* 菜单样式 */
 .el-menu-vertical {
-  height: calc(100vh - 56px);
+  height: calc(100vh - 48px);
   background-color: #5c6bc0 !important;
+  border-top: 1px solid #3949ab;
   border-right: none;
 }
 
 .el-menu-vertical .el-menu-item {
-  height: 56px;
-  line-height: 56px;
+  height: 48px;
+  line-height: 48px;
   padding: 0 20px;
   font-size: var(--sidebar-fs-menu);
   will-change: background-color;
@@ -360,16 +392,12 @@ export default {
 /* 主内容区样式 */
 .main-content {
   flex: 1;
-  margin-left: 240px;
+  margin-left: var(--sidebar-width, 240px);
   display: flex;
   flex-direction: column;
   height: 100vh;
   min-width: 0;
   transition: margin-left 0.3s ease;
-}
-
-.main-content.content-expanded {
-  margin-left: 64px;
 }
 
 /* 内容区域样式 */
@@ -388,26 +416,21 @@ export default {
 /* 响应式布局 */
 @media (max-width: 1024px) {
   .sidebar {
-    width: 200px !important;
+    min-width: 180px;
+    max-width: 280px;
   }
   
   .sidebar.collapsed {
     width: 56px !important;
-  }
-  
-  .main-content {
-    margin-left: 200px;
-  }
-  
-  .main-content.content-expanded {
-    margin-left: 56px;
+    min-width: 56px;
   }
 }
 
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
-    width: 240px !important;
+    min-width: 200px;
+    max-width: 300px;
   }
   
   .sidebar.show {

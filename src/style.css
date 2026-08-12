@@ -54,6 +54,24 @@ button:focus-visible {
   padding: 2em;
 }
 
+/* 全局消息框（ElMessageBox）字体统一为 15px */
+.el-message-box__title {
+  font-size: 17px;
+  color: #000;
+}
+.el-message-box__message {
+  font-size: 15px;
+}
+.el-message-box__input .el-input__inner {
+  font-size: 15px;
+}
+.el-message-box__errormsg {
+  font-size: 15px;
+}
+.el-message-box__btns .el-button {
+  font-size: 15px;
+}
+
 #app {
   width: 100%;
   margin: 0;

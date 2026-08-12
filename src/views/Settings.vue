@@ -1,45 +1,44 @@
 <template>
   <div class="settings-container">
+    <h3 class="settings-page-title">{{ t('settings.title') }}</h3>
+    <div class="settings-grid">
 
-    
-    <!-- PVE配置表格 -->
-    <div class="settings-section">
+    <!-- 修改密码表格 -->
+    <div class="settings-card-item">
       <div class="section-header">
-        <h3 class="section-title">{{ t('settings.pveConfig') }}</h3>
+        <h3 class="section-title">{{ t('settings.changeAdminPassword') }}</h3>
         <div class="action-buttons">
-          <el-button class="save-btn" @click="saveConfig">{{ t('settings.saveConfig') }}</el-button>
+          <el-button class="save-btn" @click="changePassword">{{ t('settings.saveConfig') }}</el-button>
         </div>
       </div>
       <div class="table-container">
         <table class="settings-table">
           <tbody>
             <tr>
-              <td class="col-label">{{ t('settings.ip') }}</td>
+              <td class="col-label">{{ t('settings.oldPassword') }}</td>
               <td class="col-value">
-                <el-input v-model="pveConfig.host" :placeholder="t('settings.pleaseEnterIp')" />
-              </td>
-              <td class="col-label">{{ t('settings.port') }}</td>
-              <td class="col-value">
-                <el-input v-model="pveConfig.port" :placeholder="t('settings.pleaseEnterPort')" />
+                <el-input v-model="passwordForm.oldPassword" type="password" :placeholder="t('settings.pleaseEnterOldPassword')" show-password />
               </td>
             </tr>
             <tr>
-              <td class="col-label">{{ t('settings.user') }}</td>
+              <td class="col-label">{{ t('settings.newPassword') }}</td>
               <td class="col-value">
-                <el-input v-model="pveConfig.user" :placeholder="t('settings.pleaseEnterUsername')" />
+                <el-input v-model="passwordForm.newPassword" type="password" :placeholder="t('settings.pleaseEnterNewPassword')" show-password />
               </td>
-              <td class="col-label">{{ t('settings.password') }}</td>
+            </tr>
+            <tr>
+              <td class="col-label">{{ t('settings.confirmNewPassword') }}</td>
               <td class="col-value">
-                <el-input v-model="pveConfig.password" type="password" :placeholder="t('settings.pleaseEnterPassword')" show-password />
+                <el-input v-model="passwordForm.confirmPassword" type="password" :placeholder="t('settings.pleaseConfirmNewPassword')" show-password />
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-    
+
     <!-- 管理网络配置表格 -->
-    <div class="settings-section">
+    <div class="settings-card-item">
       <div class="section-header">
         <h3 class="section-title">{{ t('settings.ipConfig') }}</h3>
         <div class="action-buttons">
@@ -84,13 +83,13 @@
         </table>
       </div>
     </div>
-    
-    <!-- 公网网关配置表格 -->
-    <div class="settings-section">
+
+    <!-- PVE配置表格 -->
+    <div class="settings-card-item">
       <div class="section-header">
-        <h3 class="section-title">{{ t('settings.publicGatewayProxy') }}</h3>
+        <h3 class="section-title">{{ t('settings.pveConfig') }}</h3>
         <div class="action-buttons">
-          <el-button class="save-btn" @click="savePublicGatewayConfig">{{ t('settings.saveConfig') }}</el-button>
+          <el-button class="save-btn" @click="saveConfig">{{ t('settings.saveConfig') }}</el-button>
         </div>
       </div>
       <div class="table-container">
@@ -99,46 +98,30 @@
             <tr>
               <td class="col-label">{{ t('settings.ip') }}</td>
               <td class="col-value">
-                <el-input v-model="publicGatewayConfig.ip" :placeholder="t('settings.pleaseEnterIp')" />
+                <el-input v-model="pveConfig.host" :placeholder="t('settings.pleaseEnterIp')" />
               </td>
               <td class="col-label">{{ t('settings.port') }}</td>
               <td class="col-value">
-                <el-input v-model="publicGatewayConfig.port" :placeholder="t('settings.pleaseEnterPort')" />
+                <el-input v-model="pveConfig.port" :placeholder="t('settings.pleaseEnterPort')" />
               </td>
             </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    
-    <!-- 内网网关配置表格 -->
-    <div class="settings-section">
-      <div class="section-header">
-        <h3 class="section-title">{{ t('settings.internalGatewayProxy') }}</h3>
-        <div class="action-buttons">
-          <el-button class="save-btn" @click="saveInternalGatewayConfig">{{ t('settings.saveConfig') }}</el-button>
-        </div>
-      </div>
-      <div class="table-container">
-        <table class="settings-table">
-          <tbody>
             <tr>
-              <td class="col-label">{{ t('settings.ip') }}</td>
+              <td class="col-label">{{ t('settings.user') }}</td>
               <td class="col-value">
-                <el-input v-model="internalGatewayConfig.ip" :placeholder="t('settings.pleaseEnterIp')" />
+                <el-input v-model="pveConfig.user" :placeholder="t('settings.pleaseEnterUsername')" />
               </td>
-              <td class="col-label">{{ t('settings.port') }}</td>
+              <td class="col-label">{{ t('settings.password') }}</td>
               <td class="col-value">
-                <el-input v-model="internalGatewayConfig.port" :placeholder="t('settings.pleaseEnterPort')" />
+                <el-input v-model="pveConfig.password" type="password" :placeholder="t('settings.pleaseEnterPassword')" show-password />
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-    
+
     <!-- FreeRDP配置表格 -->
-    <div class="settings-section">
+    <div class="settings-card-item">
       <div class="section-header">
         <h3 class="section-title">{{ t('settings.freeRdpConfig') }}</h3>
         <div class="action-buttons">
@@ -167,43 +150,61 @@
         </table>
       </div>
     </div>
-    
-    <!-- 修改密码表格 -->
-    <div class="settings-section">
+
+    <!-- 公网网关配置表格 -->
+    <div class="settings-card-item">
       <div class="section-header">
-        <h3 class="section-title">{{ t('settings.changeAdminPassword') }}</h3>
+        <h3 class="section-title">{{ t('settings.publicGatewayProxy') }}</h3>
         <div class="action-buttons">
-          <el-button class="save-btn" @click="changePassword">{{ t('settings.saveConfig') }}</el-button>
+          <el-button class="save-btn" @click="savePublicGatewayConfig">{{ t('settings.saveConfig') }}</el-button>
         </div>
       </div>
       <div class="table-container">
         <table class="settings-table">
           <tbody>
             <tr>
-              <td class="col-label">{{ t('settings.oldPassword') }}</td>
+              <td class="col-label">{{ t('settings.ip') }}</td>
               <td class="col-value">
-                <el-input v-model="passwordForm.oldPassword" type="password" :placeholder="t('settings.pleaseEnterOldPassword')" show-password />
+                <el-input v-model="publicGatewayConfig.ip" :placeholder="t('settings.pleaseEnterIp')" />
               </td>
-            </tr>
-            <tr>
-              <td class="col-label">{{ t('settings.newPassword') }}</td>
+              <td class="col-label">{{ t('settings.port') }}</td>
               <td class="col-value">
-                <el-input v-model="passwordForm.newPassword" type="password" :placeholder="t('settings.pleaseEnterNewPassword')" show-password />
-              </td>
-            </tr>
-            <tr>
-              <td class="col-label">{{ t('settings.confirmNewPassword') }}</td>
-              <td class="col-value">
-                <el-input v-model="passwordForm.confirmPassword" type="password" :placeholder="t('settings.pleaseConfirmNewPassword')" show-password />
+                <el-input v-model="publicGatewayConfig.port" :placeholder="t('settings.pleaseEnterPort')" />
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-    
+
+    <!-- 内网网关配置表格 -->
+    <div class="settings-card-item">
+      <div class="section-header">
+        <h3 class="section-title">{{ t('settings.internalGatewayProxy') }}</h3>
+        <div class="action-buttons">
+          <el-button class="save-btn" @click="saveInternalGatewayConfig">{{ t('settings.saveConfig') }}</el-button>
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="settings-table">
+          <tbody>
+            <tr>
+              <td class="col-label">{{ t('settings.ip') }}</td>
+              <td class="col-value">
+                <el-input v-model="internalGatewayConfig.ip" :placeholder="t('settings.pleaseEnterIp')" />
+              </td>
+              <td class="col-label">{{ t('settings.port') }}</td>
+              <td class="col-value">
+                <el-input v-model="internalGatewayConfig.port" :placeholder="t('settings.pleaseEnterPort')" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- 产品信息表格 -->
-    <div class="settings-section">
+    <div class="settings-card-item">
       <h3 class="section-title">{{ t('settings.productInfo') }}</h3>
       <div class="table-container">
         <table class="settings-table product-info-table">
@@ -223,6 +224,7 @@
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   </div>
 </template>
@@ -561,25 +563,49 @@ export default {
 <style scoped>
 .settings-container {
   background: #f8f7fc;
-  padding: 20px;
+  padding: 16px 20px 20px 20px;
   width: 100%;
   min-height: 100%;
   box-sizing: border-box;
-  --fs-base: clamp(15px, 1.05vw, 20px);
-  --fs-header: clamp(16px, 1.15vw, 22px);
+  display: flex;
+  flex-direction: column;
+  --fs-base: 15px;
+  --fs-header: 15px;
   --fs-card-title: clamp(18px, 1.3vw, 26px);
 }
 
-.settings-section {
-  margin-bottom: 16px;
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: stretch;
 }
 
-.settings-section > .section-title {
+.settings-page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #5c6bc0;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+
+.settings-card-item {
+  background: #fcfcfd;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  border-radius: 4px;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px 20px 20px;
+  box-sizing: border-box;
+}
+
+.settings-card-item > .section-title {
   margin-bottom: 12px;
 }
 
 .section-title {
-  font-size: var(--fs-card-title);
+  font-size: 17px;
   font-weight: 600;
   color: #5c6bc0;
   margin: 0;
@@ -591,12 +617,14 @@ export default {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .table-container {
   width: 100%;
   overflow: hidden;
   border-radius: 4px;
+  flex: 1;
 }
 
 .settings-table {
@@ -612,7 +640,7 @@ export default {
   border: 1px solid rgba(92, 107, 192, 0.25);
   vertical-align: middle;
   text-align: center;
-  height: clamp(44px, 3.5vw, 60px);
+  height: 48px;
   box-sizing: border-box;
 }
 
@@ -621,11 +649,13 @@ export default {
   font-weight: 600;
   color: #909399;
   font-size: var(--fs-header);
+  width: clamp(90px, 8vw, 140px);
+  min-width: clamp(90px, 8vw, 140px);
 }
 
 .col-value {
   width: auto;
-  min-width: 200px;
+  min-width: 0;
 }
 
 .col-value :deep(.el-input) {
@@ -685,8 +715,16 @@ export default {
   font-size: var(--fs-base);
 }
 
+.col-value :deep(.el-radio__label) {
+  font-size: inherit;
+}
+
 .col-value :deep(.el-switch) {
   font-size: var(--fs-base);
+}
+
+.col-value :deep(.el-switch__label) {
+  font-size: inherit;
 }
 
 .action-buttons {
@@ -720,11 +758,32 @@ export default {
 
 .product-info-table .product-info-value {
   font-size: var(--fs-base);
+  text-align: left;
+  /* 与其他列中 el-input__wrapper 的内边距一致，保证文本起点对齐 */
+  padding-left: calc(clamp(12px, 1vw, 18px) * 2);
 }
 
 .freerdp-config-table .freerdp-config-value :deep(.el-radio-group) {
   padding: 0;
   min-height: unset;
   height: 100%;
+}
+
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 10px;
+    --fs-card-title: 16px;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-container {
+    --fs-card-title: 15px;
+  }
 }
 </style>

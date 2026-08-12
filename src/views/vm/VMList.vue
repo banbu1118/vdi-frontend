@@ -1,8 +1,11 @@
 <template>
-  <div class="vm-list-container">
+  <div class="vm-list-container" ref="containerRef">
+    <h3 class="section-title">
+      {{ t('vmList.title') }}
+    </h3>
 
     <!-- 操作工具栏 -->
-    <div class="toolbar">
+    <div class="toolbar" ref="toolbarRef">
       <div class="toolbar-group">
         <span class="toolbar-label">{{ t('toolbar.powerOperation') }}</span>
         <el-button class="btn btn-primary" :class="{ 'not-operable': selectedVMs.length === 0 }" @click="selectedVMs.length > 0 && startVMs()">{{ t('toolbar.start') }}</el-button>
@@ -33,13 +36,55 @@
       </div>
     </div>
 
-    <!-- 选中信息 -->
-    <div class="selected-info" v-if="selectedVMs.length > 0">
-      {{ t('vmList.selectedVMs', { count: selectedVMs.length }) }}
+    <!-- 搜索栏 -->
+    <div class="search-bar" ref="searchBarRef">
+      <el-input
+        v-model="searchKeyword"
+        :placeholder="t('vmList.searchPlaceholder')"
+        clearable
+        size="default"
+        class="search-input"
+      >
+        <template #prefix>
+          <el-icon><Search /></el-icon>
+        </template>
+      </el-input>
+      <el-select
+        v-model="statusFilter"
+        class="status-select"
+        size="default"
+        :placeholder="t('vmList.statusFilterLabel')"
+      >
+        <el-option :value="''" :label="t('vmList.statusFilterAll')" />
+        <el-option value="running" :label="t('vmList.statusFilterRunning')" />
+        <el-option value="stopped" :label="t('vmList.statusFilterStopped')" />
+      </el-select>
+      <div class="selected-info" v-if="selectedVMs.length > 0">
+        {{ t('vmList.selectedVMs', { count: selectedVMs.length }) }}
+      </div>
+      <div class="search-bar-pagination" v-if="totalPages > 1">
+        <el-button 
+          class="page-btn" 
+          :disabled="currentPage === 1"
+          @click="currentPage--"
+        >
+          {{ t('vmList.previousPage') }}
+        </el-button>
+        <span class="page-info">
+          {{ t('vmList.pageInfo', { current: currentPage, total: totalPages, count: filteredVMs.length }) }}
+        </span>
+        <el-button 
+          class="page-btn" 
+          :disabled="currentPage === totalPages"
+          @click="currentPage++"
+        >
+          {{ t('vmList.nextPage') }}
+        </el-button>
+      </div>
     </div>
 
     <!-- 虚拟机表格 -->
-    <div class="table-container">
+    <div class="table-container" ref="tableContainerRef">
       <div v-if="loading" class="loading-state">
         <p>{{ t('vmList.loadingVMData') }}</p>
       </div>
@@ -152,7 +197,7 @@
                 </el-button>
               </div>
             </td>
-            <td class="col-cpu" :title="vm.cpu">{{ Number(vm.cpu) === 0 ? '0' : Number(vm.cpu).toFixed(4) }}</td>
+            <td class="col-cpu" :title="vm.cpu === 0 || vm.cpu === '0' ? '' : vm.cpu">{{ vm.cpu === 0 || vm.cpu === '0' ? '' : vm.cpu }}</td>
             <td class="col-num" :title="vm.cpus">{{ vm.cpus }}</td>
             <td class="col-num" :title="formatMemory(vm.mem)">{{ formatMemory(vm.mem) }}</td>
             <td class="col-num" :title="formatDisk(vm.disk)">{{ formatDisk(vm.disk) }}</td>
@@ -166,37 +211,17 @@
       </table>
       
       <!-- 空状态 -->
-      <div v-if="!loading && !error && vmList.length === 0" class="empty-state">
-        <p>{{ t('vmList.noVMData') }}</p>
+      <div v-if="!loading && !error && filteredVMs.length === 0" class="empty-state">
+        <p v-if="searchKeyword">{{ t('vmList.searchNoResult') }}</p>
+        <p v-else>{{ t('vmList.noVMData') }}</p>
       </div>
     </div>
 
-    <!-- 分页 -->
-    <div class="pagination" v-if="totalPages > 1">
-      <el-button 
-        class="page-btn" 
-        :disabled="currentPage === 1"
-        @click="currentPage--"
-      >
-        {{ t('vmList.previousPage') }}
-      </el-button>
-      <span class="page-info">
-        {{ t('vmList.pageInfo', { current: currentPage, total: totalPages, count: vmList.length }) }}
-      </span>
-      <el-button 
-        class="page-btn" 
-        :disabled="currentPage === totalPages"
-        @click="currentPage++"
-      >
-        {{ t('vmList.nextPage') }}
-      </el-button>
-    </div>
-    
     <!-- 绑定用户对话框 -->
     <el-dialog
       v-model="bindUserDialogVisible"
       :title="t('dialog.bindUser')"
-      width="500px"
+      width="min(420px, 80vw)"
       :close-on-click-modal="false"
       draggable
       class="vm-list-dialog"
@@ -238,7 +263,7 @@
     <el-dialog
       v-model="renameDialogVisible"
       :title="t('dialog.renameVM')"
-      width="400px"
+      width="min(400px, 80vw)"
       :close-on-click-modal="false"
       draggable
       class="vm-list-dialog"
@@ -265,7 +290,7 @@
     <el-dialog
       v-model="staticIPDialogVisible"
       :title="t('dialog.setStaticIP')"
-      width="500px"
+      width="min(420px, 80vw)"
       :close-on-click-modal="false"
       draggable
       class="vm-list-dialog"
@@ -321,18 +346,19 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import axios from 'axios'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import { View, Hide, DocumentCopy } from '@element-plus/icons-vue'
+import { View, Hide, DocumentCopy, Search } from '@element-plus/icons-vue'
 
 export default {
   name: 'VMList',
   components: {
     View,
     Hide,
-    DocumentCopy
+    DocumentCopy,
+    Search
   },
   setup() {
     const { t } = useI18n()
@@ -340,23 +366,57 @@ export default {
     const selectedVMs = ref([])
     const currentPage = ref(1)
     const pageSize = ref(10)
+    const searchKeyword = ref('')
+    const statusFilter = ref('')
     const windowHeight = ref(window.innerHeight)
     const loading = ref(false)
     const refreshLoading = ref(false)
     const error = ref('')
-    
-    // 根据窗口高度动态计算每页显示条数
+    const containerRef = ref(null)
+    const toolbarRef = ref(null)
+    const searchBarRef = ref(null)
+    const tableContainerRef = ref(null)
+    let pendingPageSizeUpdate = false
+    let resizeObserver = null
+
+    const schedulePageSizeUpdate = () => {
+      if (pendingPageSizeUpdate) return
+      pendingPageSizeUpdate = true
+      nextTick(() => {
+        requestAnimationFrame(() => {
+          updatePageSize()
+          pendingPageSizeUpdate = false
+        })
+      })
+    }
+
+    // 根据窗口高度动态计算每页显示条数（真实 DOM 测量）
     const updatePageSize = () => {
       windowHeight.value = window.innerHeight
-      const tableHeaderHeight = 180
-      const rowHeight = 40
-      const availableHeight = windowHeight.value - tableHeaderHeight
-      pageSize.value = Math.max(5, Math.floor(availableHeight / rowHeight))
+      const tableContainer = tableContainerRef.value
+      if (!tableContainer) return
+
+      const tableHeaderRow = tableContainer.querySelector('.vm-table thead tr')
+      if (!tableHeaderRow) return
+
+      const allRows = tableContainer.querySelectorAll('.vm-table tbody tr')
+      let rowHeight = 48
+      if (allRows.length >= 2) {
+        rowHeight = allRows[1].offsetHeight
+      } else if (allRows.length === 1) {
+        rowHeight = allRows[0].offsetHeight
+      }
+      const tableHeaderHeight = tableHeaderRow.offsetHeight
+
+      const tcRect = tableContainer.getBoundingClientRect()
+      const theadTopRelative = tableHeaderRow.getBoundingClientRect().top - tcRect.top
+
+      const availableHeight = tableContainer.clientHeight - theadTopRelative - tableHeaderHeight
+      pageSize.value = Math.max(5, Math.floor((availableHeight - 6) / rowHeight))
     }
     
-    // 监听窗口大小变化
     const handleResize = () => {
-      updatePageSize()
+      schedulePageSizeUpdate()
     }
     
     // 排序配置
@@ -468,9 +528,39 @@ export default {
       }
     }
 
-    // 排序后的完整数据
-    const sortedAllVMs = computed(() => {
-      return [...vmList.value].sort((a, b) => {
+    // 搜索时重置到第 1 页
+    watch(searchKeyword, () => {
+      currentPage.value = 1
+    })
+
+    watch(statusFilter, () => {
+      currentPage.value = 1
+    })
+
+    watch(vmList, () => {
+      schedulePageSizeUpdate()
+    })
+
+    // 按关键字 + 状态过滤后的虚拟机列表
+    const filteredVMs = computed(() => {
+      const kw = searchKeyword.value.trim().toLowerCase()
+      const sf = statusFilter.value
+      return vmList.value.filter(vm => {
+        const matchKeyword = !kw || (
+          String(vm.name || '').toLowerCase().includes(kw) ||
+          String(vm.vmid || '').toLowerCase().includes(kw) ||
+          String(vm.group || '').toLowerCase().includes(kw) ||
+          String(vm.ip || '').toLowerCase().includes(kw) ||
+          String(vm.user_name || '').toLowerCase().includes(kw)
+        )
+        const matchStatus = !sf || String(vm.status || '').toLowerCase() === sf
+        return matchKeyword && matchStatus
+      })
+    })
+
+    // 过滤 + 排序后的完整数据
+    const filteredSortedVMs = computed(() => {
+      return [...filteredVMs.value].sort((a, b) => {
         let aVal = a[sortKey.value]
         let bVal = b[sortKey.value]
         
@@ -503,15 +593,15 @@ export default {
       })
     })
 
-    // 分页数据（基于排序后的所有数据）
+    // 分页数据（基于过滤 + 排序后的数据）
     const paginatedVMs = computed(() => {
       const start = (currentPage.value - 1) * pageSize.value
       const end = start + pageSize.value
-      return sortedAllVMs.value.slice(start, end)
+      return filteredSortedVMs.value.slice(start, end)
     })
 
     const totalPages = computed(() => {
-      return Math.ceil(vmList.value.length / pageSize.value)
+      return Math.ceil(filteredSortedVMs.value.length / pageSize.value)
     })
 
     // 格式化函数
@@ -522,7 +612,7 @@ export default {
     }
 
     const formatNetwork = (bytes) => {
-      if (!bytes) return ''
+      if (!bytes || Number(bytes) === 0) return ''
       const gb = bytes / (1024 * 1024 * 1024)
       return gb >= 1 ? `${gb.toFixed(1)}GB` : `${(bytes / 1024 / 1024).toFixed(0)}MB`
     }
@@ -1218,18 +1308,25 @@ export default {
     // 组件挂载时启动轮询
     onMounted(() => {
       startPolling()
-      updatePageSize()
+      nextTick(() => {
+        if (tableContainerRef.value && 'ResizeObserver' in window) {
+          resizeObserver = new ResizeObserver(() => schedulePageSizeUpdate())
+          resizeObserver.observe(tableContainerRef.value)
+        }
+        updatePageSize()
+      })
       window.addEventListener('resize', handleResize)
-      // 添加页面可见性监听
       document.addEventListener('visibilitychange', handleVisibilityChange)
     })
 
-    // 组件卸载前停止轮询
     onBeforeUnmount(() => {
       stopPolling()
       window.removeEventListener('resize', handleResize)
-      // 清理页面可见性监听器
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      if (resizeObserver) {
+        resizeObserver.disconnect()
+        resizeObserver = null
+      }
     })
 
     return {
@@ -1237,12 +1334,19 @@ export default {
       selectedVMs,
       currentPage,
       pageSize,
+      searchKeyword,
+      statusFilter,
       windowHeight,
       loading,
       refreshLoading,
       error,
+      containerRef,
+      toolbarRef,
+      searchBarRef,
+      tableContainerRef,
       paginatedVMs,
       totalPages,
+      filteredVMs,
       formatMemory,
       formatDisk,
       formatUptime,
@@ -1291,16 +1395,29 @@ export default {
 <style scoped>
 .vm-list-container {
   background: #f8f7fc;
-  padding: 20px;
+  padding: 16px 20px 20px 20px !important;
   width: 100%;
   max-width: 100%;
-  min-height: 100%;
+  height: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
-  --fs-base: clamp(15px, 1.05vw, 20px);
-  --fs-header: clamp(16px, 1.15vw, 22px);
-  --fs-card-title: clamp(18px, 1.3vw, 26px);
-  --fs-toolbar: clamp(13px, 0.9vw, 17px);
+  display: flex;
+  flex-direction: column;
+  --fs-base: 14px;
+  --fs-header: 15px;
+  --fs-card-title: 20px;
+  --fs-toolbar: 15px;
+  --el-button-height: 48px;
+  --el-button-font-size: 15px;
+}
+
+.section-title {
+  font-size: var(--fs-card-title);
+  font-weight: 600;
+  color: #5c6bc0;
+  margin: 0 0 8px 0;
+  padding: 0;
+  line-height: 1.2;
 }
 
 .toolbar {
@@ -1308,10 +1425,11 @@ export default {
   flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 16px;
-  padding: 12px 16px;
+  padding: 0 16px;
   background: #fcfcfd;
   border: 1px solid rgba(92, 107, 192, 0.25);
   border-radius: 4px;
+  align-items: center;
 }
 
 .toolbar-group {
@@ -1319,24 +1437,121 @@ export default {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  height: 46px;
 }
 
 .toolbar-label {
   font-weight: 600;
   color: #909399;
-  font-size: var(--fs-header);
+  font-size: 17px;
   white-space: nowrap;
   margin-right: 4px;
 }
 
-.selected-info {
+.search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: clamp(8px, 0.8vw, 16px);
   margin-bottom: 12px;
-  padding: clamp(6px, 0.5vw, 10px) clamp(10px, 0.8vw, 14px);
+  padding: 0;
+}
+
+.search-bar .search-input {
+  width: clamp(240px, 28vw, 380px);
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.search-bar .search-input :deep(.el-input__wrapper) {
+  height: 48px;
+}
+
+.search-bar .status-select {
+  width: clamp(110px, 10vw, 160px);
+  font-size: 14px;
+}
+
+.search-bar :deep(.el-select .el-select__wrapper) {
+  height: 48px;
+  border-radius: 4px;
+  background-color: #fff;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  box-shadow: none;
+  transition: all 0.2s;
+  min-height: unset;
+}
+
+.search-bar :deep(.el-select .el-select__wrapper:hover) {
+  border-color: rgba(92, 107, 192, 0.5);
+}
+
+.search-bar :deep(.el-select .el-select__wrapper.is-focused) {
+  border-color: #5c6bc0;
+  box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.18);
+}
+
+.search-bar :deep(.el-select__placeholder),
+.search-bar :deep(.el-select__selected-item) {
+  font-size: 14px;
+  color: #303133;
+  line-height: 48px;
+}
+
+.search-bar :deep(.el-select__placeholder) {
+  color: #b0b3b8;
+}
+
+.search-bar :deep(.el-select__caret .el-icon),
+.search-bar :deep(.el-select__wrapper .el-icon) {
+  color: #909399;
+}
+
+.search-bar :deep(.el-input__wrapper) {
+  border-radius: 4px;
+  background-color: #fff;
+  border: 1px solid rgba(92, 107, 192, 0.25);
+  box-shadow: none;
+  transition: all 0.2s;
+}
+
+.search-bar :deep(.el-input__wrapper:hover) {
+  border-color: rgba(92, 107, 192, 0.5);
+}
+
+.search-bar :deep(.el-input__wrapper.is-focus) {
+  border-color: #5c6bc0;
+  box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.18);
+}
+
+.search-bar :deep(.el-input__inner) {
+  font-size: 14px;
+  color: #303133;
+}
+
+.search-bar :deep(.el-input__inner::placeholder) {
+  color: #b0b3b8;
+}
+
+.search-bar :deep(.el-input__prefix .el-icon) {
+  color: #909399;
+}
+
+.search-bar :deep(.el-input__clear .el-icon) {
+  color: #909399;
+}
+
+.selected-info {
+  height: 48px;
+  line-height: 48px;
+  padding: 0 clamp(10px, 0.8vw, 14px);
   background: rgba(92, 107, 192, 0.08);
   border: 1px solid rgba(92, 107, 192, 0.25);
   border-radius: 4px;
   color: #5c6bc0;
-  font-size: var(--fs-toolbar);
+  font-size: 14px;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .table-container {
@@ -1348,6 +1563,9 @@ export default {
   scrollbar-width: auto;
   scrollbar-color: rgba(92, 107, 192, 0.6) rgba(92, 107, 192, 0.12);
   padding-bottom: 2px;
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
 }
 .table-container::-webkit-scrollbar {
   height: 10px;
@@ -1366,7 +1584,7 @@ export default {
 }
 
 .vm-table {
-  width: 1800px;
+  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   border: 1px solid rgba(92, 107, 192, 0.25);
@@ -1377,8 +1595,9 @@ export default {
 
 .vm-table th,
 .vm-table td {
-  padding-top: clamp(6px, 0.6vw, 12px);
-  padding-bottom: clamp(6px, 0.6vw, 12px);
+  height: 48px;
+  padding-top: 6px;
+  padding-bottom: 6px;
   padding-left: clamp(2px, 0.2vw, 5px);
   padding-right: clamp(2px, 0.2vw, 5px);
   text-align: center;
@@ -1402,12 +1621,12 @@ export default {
   background: rgba(92, 107, 192, 0.06);
   font-weight: 600;
   color: #909399;
-  font-size: var(--fs-header);
+  font-size: 15px;
   text-align: center;
 }
 
 .vm-table td {
-  font-size: var(--fs-base);
+  font-size: 14px;
 }
 
 .vm-table tr:hover td {
@@ -1436,6 +1655,8 @@ export default {
 
 .vm-table .sticky-col-2 {
   min-width: 40px;
+  padding-left: clamp(6px, 0.6vw, 12px) !important;
+  padding-right: clamp(6px, 0.6vw, 12px) !important;
 }
 
 .vm-table th:nth-child(3), .vm-table td.col-name {
@@ -1449,13 +1670,19 @@ export default {
 }
 .vm-table th:nth-child(6), .vm-table td.col-ip {
   min-width: 80px;
+  padding-left: clamp(6px, 0.6vw, 12px) !important;
+  padding-right: clamp(6px, 0.6vw, 12px) !important;
 }
 .vm-table th:nth-child(7),
 .vm-table td:nth-child(7) {
   min-width: 90px;
+  padding-left: clamp(6px, 0.6vw, 12px) !important;
+  padding-right: clamp(6px, 0.6vw, 12px) !important;
 }
 .vm-table th:nth-child(8), .vm-table td:nth-child(8) {
   min-width: 80px;
+  padding-left: clamp(6px, 0.6vw, 12px) !important;
+  padding-right: clamp(6px, 0.6vw, 12px) !important;
 }
 .vm-table th:nth-child(9),
 .vm-table td:nth-child(9) {
@@ -1463,6 +1690,8 @@ export default {
 }
 .vm-table th:nth-child(10), .vm-table td.col-cpu {
   min-width: 55px;
+  padding-left: clamp(6px, 0.6vw, 12px) !important;
+  padding-right: clamp(6px, 0.6vw, 12px) !important;
 }
 .vm-table th:nth-child(11), .vm-table td:nth-child(11) {
   min-width: 40px;
@@ -1556,23 +1785,29 @@ export default {
   color: #f56c6c;
 }
 
-.pagination {
+.search-bar-pagination {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 15px;
-  margin-top: 20px;
-  font-size: var(--fs-base);
+  gap: clamp(6px, 0.6vw, 12px);
+  margin-left: auto;
+  font-size: 14px;
+}
+
+.search-bar-pagination .page-btn {
+  padding: 0 clamp(10px, 0.9vw, 16px);
+  height: 48px;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
 .page-btn {
-  padding: clamp(6px, 0.5vw, 10px) clamp(12px, 1vw, 20px);
+  padding: 0 clamp(12px, 1vw, 20px);
   border: 1px solid rgba(92, 107, 192, 0.4);
   background: rgba(92, 107, 192, 0.12);
   color: #5c6bc0;
   border-radius: 4px;
   cursor: pointer;
-  font-size: var(--fs-base);
+  font-size: 14px;
   transition: all 0.2s;
 }
 
@@ -1591,8 +1826,14 @@ export default {
   color: #606266;
 }
 
-.vm-list-container :deep(.toolbar .el-button.btn) {
-  font-size: var(--fs-header);
+.vm-list-container :deep(.toolbar .el-button) {
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: 32px !important;
+  font-size: 15px !important;
   transition: all 0.2s;
 }
 
@@ -1785,14 +2026,13 @@ export default {
 
 <style>
 .vm-list-dialog {
-  --d-fs-base: clamp(15px, 1.05vw, 20px);
-  --d-fs-header: clamp(16px, 1.15vw, 22px);
+  --d-fs-base: 15px;
+  --d-fs-header: 15px;
 }
 
 .vm-list-dialog .el-dialog__title {
-  font-size: var(--d-fs-header);
-  font-weight: 600;
-  color: #5c6bc0;
+  font-size: 17px;
+  color: #000;
 }
 
 .vm-list-dialog .el-form-item__label {

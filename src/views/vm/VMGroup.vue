@@ -1,5 +1,10 @@
 <template>
   <div class="vm-group-container">
+    <!-- 虚拟机组列表标题 -->
+    <h3 class="section-title">
+      {{ t('groupList.title') }}
+    </h3>
+
     <!-- 操作工具栏 -->
     <div class="toolbar">
       <div class="toolbar-group">
@@ -17,7 +22,7 @@
     <el-dialog
       v-model="addDialogVisible"
       :title="t('dialog.addVMGroup')"
-      width="700px"
+      width="min(560px, 80vw)"
       :close-on-click-modal="false"
       draggable
       class="vm-group-dialog"
@@ -138,7 +143,7 @@
     <el-dialog
       v-model="editDialogVisible"
       :title="t('dialog.editVMGroup')"
-      width="700px"
+      width="min(560px, 80vw)"
       :close-on-click-modal="false"
       draggable
       class="vm-group-dialog"
@@ -255,11 +260,6 @@
       </template>
     </el-dialog>
 
-    <!-- 虚拟机组列表标题 -->
-    <h3 class="section-title">
-      {{ t('groupList.title') }}
-    </h3>
-
     <!-- 选中信息 -->
     <div class="selected-info" v-if="selectedGroups.length > 0">
       {{ t('groupList.selectedGroups', { count: selectedGroups.length }) }}
@@ -272,6 +272,10 @@
           <tr>
             <th class="col-checkbox">{{ t('groupList.checkbox') }}</th>
             <th class="col-name">{{ t('groupList.name') }}</th>
+            <th class="col-vm-count">{{ t('groupList.vmCount') }}</th>
+            <th class="col-template-name">{{ t('groupList.templateName') }}</th>
+            <th class="col-cpus">{{ t('groupList.cpus') }}</th>
+            <th class="col-mem">{{ t('groupList.mem') }}</th>
             <th class="col-snapshot">{{ t('groupList.snapshot') }}</th>
             <th class="col-desc">{{ t('groupList.description') }}</th>
           </tr>
@@ -286,6 +290,10 @@
               />
             </td>
             <td>{{ group.vm_group }}</td>
+            <td>{{ group.vm_count }}</td>
+            <td>{{ group.template_name }}</td>
+            <td>{{ group.cpus }}</td>
+            <td>{{ formatMemory(group.memory_mb) }}</td>
             <td>{{ group.is_snapshot === '1' ? t('form.enabled') : t('form.disabled') }}</td>
             <td>{{ group.description }}</td>
           </tr>
@@ -334,6 +342,15 @@ export default {
     // 虚拟机组列表数据
     const groupList = ref([])
     let pollingTimer = null
+
+    // 内存大小格式化为可读单位
+    const formatMemory = (mb) => {
+      if (!mb) return ''
+      if (mb >= 1024) {
+        return `${(mb / 1024).toFixed(1)}GB`
+      }
+      return `${mb}MB`
+    }
     
     // 模板列表数据
     const templates = ref([])
@@ -1339,6 +1356,7 @@ export default {
       loading,
       error,
       groupList,
+      formatMemory,
       templates,
       templatesLoading,
       storages,
@@ -1378,14 +1396,16 @@ export default {
 <style scoped>
 .vm-group-container {
   background: #f8f7fc;
-  padding: 20px;
+  padding: 16px 20px 20px 20px !important;
   width: 100%;
   min-height: 100%;
   box-sizing: border-box;
-  --fs-base: clamp(15px, 1.05vw, 20px);
-  --fs-header: clamp(16px, 1.15vw, 22px);
-  --fs-card-title: clamp(18px, 1.3vw, 26px);
-  --fs-toolbar: clamp(13px, 0.9vw, 17px);
+  --el-button-height: 48px;
+  --el-button-font-size: 15px;
+  --fs-base: 14px;
+  --fs-header: 15px;
+  --fs-card-title: 20px;
+  --fs-toolbar: 15px;
 }
 
 .toolbar {
@@ -1393,10 +1413,11 @@ export default {
   flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 16px;
-  padding: 12px 16px;
+  padding: 0 16px;
   background: #fcfcfd;
   border: 1px solid rgba(92, 107, 192, 0.25);
   border-radius: 4px;
+  align-items: center;
 }
 
 .toolbar-group {
@@ -1404,12 +1425,13 @@ export default {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  height: 46px;
 }
 
 .toolbar-label {
   font-weight: 600;
   color: #909399;
-  font-size: var(--fs-header);
+  font-size: 17px;
   white-space: nowrap;
   margin-right: 4px;
 }
@@ -1418,8 +1440,9 @@ export default {
   font-size: var(--fs-card-title);
   font-weight: 600;
   color: #5c6bc0;
-  margin: 0 0 12px 0;
+  margin: 0 0 8px 0;
   padding: 0;
+  line-height: 1.2;
 }
 
 .table-title {
@@ -1455,8 +1478,9 @@ export default {
 
 .vm-group-table th,
 .vm-group-table td {
-  padding-top: clamp(6px, 0.6vw, 12px);
-  padding-bottom: clamp(6px, 0.6vw, 12px);
+  height: 48px;
+  padding-top: 6px;
+  padding-bottom: 6px;
   padding-left: clamp(10px, 0.8vw, 16px);
   padding-right: clamp(10px, 0.8vw, 16px);
   text-align: center;
@@ -1479,6 +1503,7 @@ export default {
   font-weight: 600;
   color: #909399;
   font-size: var(--fs-header);
+  white-space: nowrap;
 }
 
 .vm-group-table td {
@@ -1510,8 +1535,33 @@ export default {
   text-align: center;
 }
 
-.vm-group-container :deep(.toolbar .el-button.btn) {
-  font-size: var(--fs-header);
+.col-vm-count {
+  width: 120px;
+  text-align: center;
+}
+
+.col-template-name {
+  width: 150px;
+}
+
+.col-cpus {
+  width: 90px;
+  text-align: center;
+}
+
+.col-mem {
+  width: 100px;
+  text-align: center;
+}
+
+.vm-group-container :deep(.toolbar .el-button) {
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: 32px !important;
+  font-size: 15px !important;
   transition: all 0.2s;
 }
 
@@ -1630,12 +1680,13 @@ export default {
 
 <style>
 .vm-group-dialog {
-  --d-fs-base: clamp(15px, 1.05vw, 20px);
-  --d-fs-header: clamp(16px, 1.15vw, 22px);
+  --d-fs-base: 15px;
+  --d-fs-header: 15px;
 }
 
 .vm-group-dialog .el-dialog__title {
-  font-size: var(--d-fs-header);
+  font-size: 17px;
+  color: #000;
 }
 
 .vm-group-dialog .el-dialog__body {
@@ -1680,20 +1731,6 @@ export default {
 }
 
 .vm-group-dialog .el-form-item__error {
-  font-size: clamp(12px, 0.85vw, 14px);
-}
-
-@media (max-width: 768px) {
-  .vm-group-dialog {
-    --d-fs-base: 13px;
-    --d-fs-header: 14px;
-  }
-}
-
-@media (max-width: 480px) {
-  .vm-group-dialog {
-    --d-fs-base: 12px;
-    --d-fs-header: 13px;
-  }
+  font-size: 15px;
 }
 </style>

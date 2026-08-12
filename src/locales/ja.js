@@ -293,7 +293,7 @@ export default {
     setStaticIP: '静的IPを設定',
     updateUser: 'ユーザー名を同期',
     updatePassword: 'パスワードを更新',
-    unlockUser: 'ユーザーのロックを解除',
+    unlockUser: 'ロック解除',
     updateRDPPort: 'RDPポートを同期',
     bindUser: '新しいユーザーをバインド',
     unbindUser: 'バインドを解除',
@@ -313,6 +313,7 @@ export default {
     enable: '有効化'
   },
   vmList: {
+    title: '仮想マシン一覧',
     refreshSuccess: 'リフレッシュ成功、現在 {count} 台の仮想マシン',
     refreshFailed: 'リフレッシュ失敗: APIが不正なデータ形式を返しました',
     networkError: 'ネットワークエラー: {error}',
@@ -330,13 +331,24 @@ export default {
     confirmDeleteVM: 'この仮想マシンを削除してもよろしいですか？',
     vmDeletedSuccess: '仮想マシンが正常に削除されました',
     deleteFailed: '削除に失敗しました:',
-    pleaseEnterVMName: '仮想マシン名を入力してください'
+    pleaseEnterVMName: '仮想マシン名を入力してください',
+    searchPlaceholder: 'vmid / name / group / user_name / ip',
+    searchNoResult: '該当する仮想マシンが見つかりません',
+    statusFilterLabel: '実行状態',
+    statusFilterAll: 'すべて',
+    statusFilterRunning: '起動中',
+    statusFilterStopped: '停止中'
   },
   groupList: {
     title: 'VMグループ',
     checkbox: '選択',
     name: 'VMグループ',
     description: '説明',
+    vmCount: 'VM数',
+    templateName: 'テンプレート名',
+    cpus: 'CPU数',
+    mem: 'メモリ',
+    snapshot: 'スナップショット',
     selectedGroups: '{count} 個のVMグループが選択されました'
   },
   userList: {
@@ -352,15 +364,15 @@ export default {
   userDetailList: {
     title: 'ユーザーリスト',
     checkbox: '単一選択',
-    username: 'ユーザー名',
-    userGroup: 'ユーザーグループ',
+    username: 'ユーザー',
+    userGroup: 'グループ',
     remark: '備考',
-    accountStatus: 'アカウントステータス',
-    loginStatus: 'ログインステータス',
-    loginTime: 'ログイン時間',
+    accountStatus: 'ステータス',
+    loginStatus: '在線',
+    loginTime: '最終ログイン',
     loginIP: 'ログインIP',
-    loginMode: 'ログインモード',
-    publicConnection: 'パブリック接続',
+    loginMode: 'クライアント',
+    publicConnection: 'パブリックゲートウェイ',
     directConnect: 'ダイレクト接続',
     audioRedirect: 'オーディオリダイレクト',
     usbRedirect: 'USBリダイレクト',
@@ -370,7 +382,14 @@ export default {
     copyToVM: 'VMに貼り付け',
     copyFromVM: 'クライアントに貼り付け',
     online: 'オンライン',
-    offline: 'オフライン'
+    offline: 'オフライン',
+    searchPlaceholder: 'ユーザー名 / ユーザーグループ',
+    searchNoResult: '該当するユーザーが見つかりません',
+    accountStatusLabel: 'アカウントステータス',
+    accountStatusAll: 'すべて',
+    accountStatusEnabled: '有効',
+    accountStatusDisabled: '無効',
+    selectedUsers: '{count} ユーザー選択中'
   },
   dialog: {
     bindUser: 'ユーザーをバインド',
@@ -509,6 +528,7 @@ export default {
     usernamePlaceholder: 'ユーザー名を入力してください'
   },
   settings: {
+    title: 'システム設定',
     pveConfig: 'PVE設定',
     changeAdminPassword: '管理者パスワードの変更',
     ipConfig: '管理ネットワーク設定',
