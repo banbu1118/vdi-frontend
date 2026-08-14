@@ -57,7 +57,7 @@ export default {
   },
   brand: {
     name: 'OpenDesk',
-    description: 'Professional virtual desktop management solution'
+    description: 'Virtual Desktop Infrastructure Management Platform'
   },
   common: {
     welcome: 'Welcome to',

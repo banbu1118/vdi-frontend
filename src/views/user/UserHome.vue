@@ -394,7 +394,7 @@ export default {
 .user-home-container {
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgb(92, 107, 192);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -436,7 +436,7 @@ export default {
 
 .vm-item {
   border: 1px solid #e4e7ed;
-  border-radius: 8px;
+  border-radius: 6px;
   padding: var(--pad-item);
 }
 
@@ -456,10 +456,11 @@ export default {
 .vm-name {
   font-size: var(--fs-name);
   font-weight: bold;
-  color: white;
-  background: #a5aed8;
+  color: #5c6bc0;
+  background: rgba(92, 107, 192, 0.15);
+  border: 1px solid rgba(92, 107, 192, 0.3);
   padding: clamp(2px, 0.4vw, 4px) clamp(6px, 0.8vw, 12px);
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .vm-id {
@@ -470,7 +471,7 @@ export default {
 .vm-status {
   font-size: var(--fs-status);
   padding: clamp(2px, 0.4vw, 4px) clamp(6px, 0.8vw, 12px);
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .vm-status.running {
@@ -498,7 +499,7 @@ export default {
   background: rgba(90, 158, 255, 0.3);
   color: #3a6fc4;
   border: 1px solid rgba(90, 158, 255, 0.4);
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: var(--fs-btn);
   cursor: pointer;
   transition: all 0.3s ease;
@@ -531,7 +532,7 @@ export default {
   background: white;
   color: #606266;
   border: 1px solid #dcdfe6;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: var(--fs-footer);
   cursor: pointer;
   transition: all 0.3s ease;

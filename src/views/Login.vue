@@ -201,7 +201,7 @@ export default {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgb(92, 107, 192);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -232,12 +232,12 @@ export default {
   font-size: 15px;
 }
 
-:deep(.el-input__wrapper.is-error) {
-  box-shadow: 0 0 0 1px #f56c6c inset;
-}
-
-:deep(.el-input__wrapper.is-error:focus-within) {
-  box-shadow: 0 0 0 1px #f56c6c inset, 0 0 0 2px rgba(245, 108, 108, 0.2);
+:deep(.el-form-item.is-error .el-form-item__content .el-input__wrapper),
+:deep(.el-form-item.is-error .el-form-item__content .el-input__wrapper:hover),
+:deep(.el-form-item.is-error .el-form-item__content .el-input__wrapper:focus),
+:deep(.el-form-item.is-error .el-form-item__content .el-input__wrapper.is-focus) {
+  box-shadow: none;
+  border-color: rgb(92, 107, 192);
 }
 
 .login-content {
@@ -249,14 +249,15 @@ export default {
   height: 100%;
   margin: 0 auto;
   padding: 0 20px;
+  gap: clamp(64px, 8vw, 160px);
   align-items: center;
   justify-content: center;
 }
 
 .login-left {
-  flex: 1;
-  padding-right: 40px;
-  padding-left: 150px;
+  flex: none;
+  width: 660px;
+  max-width: 100%;
   color: white;
   display: flex;
   flex-direction: column;
@@ -274,23 +275,21 @@ export default {
 .brand-desc {
   font-size: clamp(1.25rem, 3vw, 1.5rem);
   line-height: 1.6;
-  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.85);
   letter-spacing: 2px;
   margin-bottom: 40px;
 }
 
 .login-right {
-  flex: 0 0 480px;
+  flex: 0 0 400px;
   max-width: 100%;
 }
 
 .login-form-wrapper {
-  background: rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: none;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  background: #f5f6f7;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   animation: slideIn 0.6s ease-out;
   width: 100%;
@@ -330,21 +329,22 @@ export default {
 
 :deep(.el-input__wrapper) {
   min-height: 48px;
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgb(92, 107, 192);
+  border-radius: 6px;
   box-shadow: none;
   transition: background 0.2s, border-color 0.2s;
 }
 
 :deep(.el-input__wrapper:hover) {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.35);
 }
 
 :deep(.el-input__wrapper.is-focus) {
-  background: rgba(255, 255, 255, 0.6);
-  border-color: rgba(92, 107, 192, 0.5);
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgb(92, 107, 192);
 }
 
 :deep(.el-button) {
@@ -354,11 +354,15 @@ export default {
   padding: 0;
 }
 
-@media (max-width: 1024px) {
-  .login-left {
-    flex: 0 0 50%;
-    padding-right: 30px;
-  }
+:deep(.el-button--primary) {
+  background-color: rgb(112, 126, 208);
+  border-color: rgb(112, 126, 208);
+}
+
+:deep(.el-button--primary:hover),
+:deep(.el-button--primary:focus) {
+  background-color: rgba(112, 126, 208, 0.85);
+  border-color: rgba(112, 126, 208, 0.85);
 }
 
 @media (max-width: 768px) {
@@ -421,7 +425,7 @@ export default {
   }
 
   .login-right {
-    flex: 0 0 400px;
+    flex: 0 0 380px;
   }
 }
 </style>

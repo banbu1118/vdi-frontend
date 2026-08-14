@@ -57,7 +57,7 @@ export default {
   },
   brand: {
     name: 'OpenDesk',
-    description: '専門的な仮想デスクトップ管理ソリューション'
+    description: '仮想デスクトップ基盤管理プラットフォーム'
   },
   common: {
     welcome: 'ようこそ',

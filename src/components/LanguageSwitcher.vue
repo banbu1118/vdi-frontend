@@ -1,7 +1,7 @@
 <template>
   <div class="language-switcher">
     <el-dropdown trigger="click" @command="handleLanguageChange">
-      <span class="language-text">{{ currentLanguageText }}</span>
+      <span class="language-text">🌐 {{ currentLanguageText }}</span>
       <template #dropdown>
         <el-dropdown-menu>
           <el-dropdown-item command="zh-CN">简体中文</el-dropdown-item>

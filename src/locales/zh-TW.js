@@ -57,7 +57,7 @@ export default {
   },
   brand: {
     name: 'OpenDesk',
-    description: '專業的虛擬桌面管理解決方案'
+    description: '虛擬桌面基礎設施管理平台'
   },
   common: {
     welcome: '歡迎使用',
