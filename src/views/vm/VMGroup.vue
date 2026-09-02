@@ -283,8 +283,8 @@
         <tbody>
           <tr v-for="group in groupList" :key="group.vm_group">
             <td>
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 :value="group.vm_group"
                 v-model="selectedGroups"
               />
@@ -296,6 +296,17 @@
             <td>{{ formatMemory(group.memory_mb) }}</td>
             <td>{{ group.is_snapshot === '1' ? t('form.enabled') : t('form.disabled') }}</td>
             <td>{{ group.description }}</td>
+          </tr>
+          <!-- 无数据时显示一行空白占位行 -->
+          <tr v-if="groupList.length === 0">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
           </tr>
         </tbody>
       </table>

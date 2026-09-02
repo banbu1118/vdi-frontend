@@ -99,7 +99,7 @@
                <input 
                  type="checkbox" 
                  @change="toggleSelectAll"
-                 :checked="selectedVMs.length === vmList.length && vmList.length > 0"
+                 :checked="filteredSortedVMs.length > 0 && filteredSortedVMs.every(vm => selectedVMs.includes(vm.vmid))"
                />
              </th>
              <th @click="handleSort('vmid')" class="sortable sticky-col-2">
@@ -206,6 +206,27 @@
             <td class="col-num" :title="formatNetwork(vm.netout)">{{ formatNetwork(vm.netout) }}</td>
             <td class="col-num" :title="vm.rdp_port">{{ vm.rdp_port }}</td>
             <td class="col-num" :title="vm.has_snapshot">{{ vm.has_snapshot == '1' ? 'Y' : 'N' }}</td>
+          </tr>
+          <!-- 无数据时显示一行空白占位行 -->
+          <tr v-if="paginatedVMs.length === 0">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
           </tr>
          </tbody>
       </table>
@@ -490,7 +511,8 @@ export default {
              oldVM.node !== newVM.node ||
              oldVM.vm_user !== newVM.vm_user ||
              oldVM.vm_password !== newVM.vm_password ||
-             oldVM.rdp_port !== newVM.rdp_port
+             oldVM.rdp_port !== newVM.rdp_port ||
+             oldVM.user_name !== newVM.user_name
     }
 
     // 启动轮询
@@ -659,10 +681,15 @@ export default {
 
     // 方法
     const toggleSelectAll = () => {
-      if (selectedVMs.value.length === vmList.value.length) {
-        selectedVMs.value = []
+      const filteredIds = new Set(filteredSortedVMs.value.map(vm => vm.vmid))
+      if (filteredSortedVMs.value.length > 0 && filteredSortedVMs.value.every(vm => selectedVMs.value.includes(vm.vmid))) {
+        // 全部已选：只移除当前过滤结果中的虚拟机
+        selectedVMs.value = selectedVMs.value.filter(id => !filteredIds.has(id))
       } else {
-        selectedVMs.value = vmList.value.map(vm => vm.vmid)
+        // 勾选：将当前过滤结果合并进选中列表，保留其它已选
+        const existing = new Set(selectedVMs.value)
+        filteredSortedVMs.value.forEach(vm => existing.add(vm.vmid))
+        selectedVMs.value = Array.from(existing)
       }
     }
 
@@ -1341,6 +1368,7 @@ export default {
       paginatedVMs,
       totalPages,
       filteredVMs,
+      filteredSortedVMs,
       formatMemory,
       formatDisk,
       formatUptime,

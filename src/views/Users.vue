@@ -78,6 +78,62 @@
       </template>
     </el-dialog>
 
+    <!-- 添加用户对话框 -->
+    <el-dialog
+      v-model="addSingleUserDialogVisible"
+      :title="t('dialog.addUser')"
+      width="min(560px, 80vw)"
+      :close-on-click-modal="false"
+      draggable
+      class="users-dialog"
+    >
+      <el-form :model="singleUserForm" label-width="auto" label-position="left">
+        <el-form-item :label="t('form.username')" required>
+          <el-input v-model="singleUserForm.username" :placeholder="t('form.usernamePlaceholder')" />
+        </el-form-item>
+        <el-form-item :label="t('form.password')" required>
+          <el-input v-model="singleUserForm.password" type="password" :placeholder="t('form.passwordPlaceholder')" />
+        </el-form-item>
+        <el-form-item :label="t('form.remark')">
+          <el-input v-model="singleUserForm.remark" type="textarea" :placeholder="t('form.remarkPlaceholder')" />
+        </el-form-item>
+        <el-form-item :label="t('form.publicGateway')">
+          <el-segmented v-model="singleUserForm.public_gateway" :options="yesNoOptions" />
+        </el-form-item>
+        <el-form-item :label="t('form.direct')">
+          <el-segmented v-model="singleUserForm.direct" :options="yesNoOptions" />
+        </el-form-item>
+        <el-form-item :label="t('form.audioRedirect')">
+          <el-segmented v-model="singleUserForm.audio_redirect" :options="yesNoOptions" />
+        </el-form-item>
+        <el-form-item :label="t('form.usbRedirect')">
+          <el-segmented v-model="singleUserForm.usb_redirect" :options="yesNoOptions" />
+        </el-form-item>
+        <el-form-item :label="t('form.driveRedirect')">
+          <el-segmented v-model="singleUserForm.drive_redirect" :options="yesNoOptions" />
+        </el-form-item>
+        <el-form-item :label="t('form.printerRedirect')">
+          <el-segmented v-model="singleUserForm.printer_redirect" :options="yesNoOptions" />
+        </el-form-item>
+        <el-form-item :label="t('form.clipboardRedirect')">
+          <el-segmented v-model="singleUserForm.clipboard_redirect" :options="yesNoOptions" @change="handleClipboardRedirectChange($event, singleUserForm)" />
+        </el-form-item>
+        <el-form-item :label="t('form.clientToServerClipboard')" v-if="singleUserForm.clipboard_redirect === '1'">
+          <el-segmented v-model="singleUserForm.client_to_server_clipboard" :options="yesNoOptions" />
+        </el-form-item>
+        <el-form-item :label="t('form.serverToClientClipboard')" v-if="singleUserForm.clipboard_redirect === '1'">
+          <el-segmented v-model="singleUserForm.server_to_client_clipboard" :options="yesNoOptions" />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="addSingleUserDialogVisible = false; resetSingleUserForm()">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="addSingleUser">{{ t('common.ok') }}</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
     <!-- 批量添加用户对话框 -->
     <el-dialog
       v-model="addUserDialogVisible"
@@ -164,8 +220,8 @@
         <el-form-item :label="t('form.remark')">
           <el-input v-model="userForm.remark" type="textarea" :placeholder="t('form.remarkPlaceholder')" />
         </el-form-item>
-        <el-form-item :label="t('form.group')" required>
-          <el-select v-model="userForm.group" :placeholder="t('form.groupPlaceholder')">
+        <el-form-item :label="t('form.group')">
+          <el-select v-model="userForm.group" :placeholder="t('form.groupPlaceholder')" clearable>
             <el-option v-for="group in userGroups" :key="group" :label="group" :value="group" />
           </el-select>
         </el-form-item>
@@ -269,6 +325,14 @@
             <td>{{ user.disabled === '0' ? t('form.enabled') : t('form.disabled') }}</td>
             <td>{{ user.description }}</td>
           </tr>
+          <!-- 无数据时显示一行空白占位行 -->
+          <tr v-if="userList.length === 0">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -282,7 +346,8 @@
     <div class="toolbar" ref="userDetailToolbarRef">
       <div class="toolbar-group">
         <span class="toolbar-label">{{ t('toolbar.userOperation') }}</span>
-        <el-button class="btn btn-info" @click="showAddUserDialog">{{ t('toolbar.add') }}</el-button>
+        <el-button class="btn btn-info" @click="showAddSingleUserDialog">{{ t('toolbar.add') }}</el-button>
+        <el-button class="btn btn-info" @click="showAddUserDialog">{{ t('toolbar.batchAdd') }}</el-button>
         <el-button class="btn btn-primary" :class="{ 'not-operable': selectedUserDetails.length !== 1 }" @click="selectedUserDetails.length === 1 && showEditUserDialog()">{{ t('toolbar.edit') }}</el-button>
         <el-button class="btn btn-danger" :class="{ 'not-operable': selectedUserDetails.length === 0 }" @click="selectedUserDetails.length > 0 && deleteUser()">{{ t('toolbar.delete') }}</el-button>
         <el-button class="btn btn-warning" :class="{ 'not-operable': selectedUserDetails.length === 0 }" @click="selectedUserDetails.length > 0 && toggleUserDetailStatus()">{{ getToggleUserDetailButtonText() }}</el-button>
@@ -410,6 +475,27 @@
                 </span>
               </div>
             </td>
+          </tr>
+          <!-- 无数据时显示一行空白占位行 -->
+          <tr v-if="paginatedUserDetails.length === 0">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
           </tr>
         </tbody>
       </table>
@@ -784,6 +870,7 @@ export default {
     // 对话框相关
     const addDialogVisible = ref(false)
     const editDialogVisible = ref(false)
+    const addSingleUserDialogVisible = ref(false)
     const addUserDialogVisible = ref(false)
     const editUserDialogVisible = ref(false)
     const form = ref({
@@ -799,6 +886,21 @@ export default {
       password: '',
       remark: '',
       group: '',
+      public_gateway: '0',
+      direct: '0',
+      audio_redirect: '0',
+      usb_redirect: '0',
+      drive_redirect: '0',
+      printer_redirect: '0',
+      clipboard_redirect: '0',
+      client_to_server_clipboard: '0',
+      server_to_client_clipboard: '0'
+    })
+    // 单个用户表单
+    const singleUserForm = ref({
+      username: '',
+      password: '',
+      remark: '',
       public_gateway: '0',
       direct: '0',
       audio_redirect: '0',
@@ -866,6 +968,12 @@ export default {
       await fetchUserGroupsList()
       resetUserForm()
       addUserDialogVisible.value = true
+    }
+
+    // 显示添加用户对话框（单个添加）
+    const showAddSingleUserDialog = () => {
+      resetSingleUserForm()
+      addSingleUserDialogVisible.value = true
     }
 
     // 显示编辑用户对话框
@@ -987,6 +1095,24 @@ export default {
       }
     }
 
+    // 重置单个用户表单
+    const resetSingleUserForm = () => {
+      singleUserForm.value = {
+        username: '',
+        password: '',
+        remark: '',
+        public_gateway: '0',
+        direct: '0',
+        audio_redirect: '0',
+        usb_redirect: '0',
+        drive_redirect: '0',
+        printer_redirect: '0',
+        clipboard_redirect: '0',
+        client_to_server_clipboard: '0',
+        server_to_client_clipboard: '0'
+      }
+    }
+
     // 重置密码表单
     const resetPasswordForm = () => {
       passwordForm.value = {
@@ -1040,16 +1166,15 @@ export default {
           ElMessage.warning(t('message.pleaseEnterUsername'))
           return
         }
-        if (!userForm.value.group) {
-          ElMessage.warning(t('message.pleaseSelectUserGroup'))
-          return
-        }
         
         // 检查表单数据
         // console.log('发送的编辑用户数据:', userForm.value)
         
-        // 发送API请求
-        const response = await axios.post('/users/updateUser', userForm.value)
+        // 发送API请求（group 清空后为 undefined，需显式归一化为空字符串确保传给后端）
+        const response = await axios.post('/users/updateUser', {
+          ...userForm.value,
+          group: userForm.value.group || ''
+        })
         const result = response.data
 
         if (result.code === 0) {
@@ -1174,6 +1299,38 @@ export default {
       } catch (error) {
         console.error('批量添加用户失败:', error.message)
         ElMessage.error(t('message.batchCreateFailed') + ': ' + error.message)
+      }
+    }
+
+    // 添加单个用户
+    const addSingleUser = async () => {
+      try {
+        // 验证必填项
+        if (!singleUserForm.value.username.trim()) {
+          ElMessage.warning(t('message.pleaseEnterUsername'))
+          return
+        }
+        if (!singleUserForm.value.password.trim()) {
+          ElMessage.warning(t('message.pleaseEnterPassword'))
+          return
+        }
+
+        // 发送API请求
+        const response = await axios.post('/users/single', singleUserForm.value)
+        const result = response.data
+
+        if (result.code === 0) {
+          ElMessage.success(t('message.singleCreateSuccess'))
+          addSingleUserDialogVisible.value = false
+          resetSingleUserForm()
+          // 刷新用户列表
+          await fetchUserDetailList()
+        } else {
+          ElMessage.error(result.message || t('message.singleCreateFailed'))
+        }
+      } catch (error) {
+        console.error('添加用户失败:', error.message)
+        ElMessage.error(t('message.singleCreateFailed') + ': ' + error.message)
       }
     }
 
@@ -1423,11 +1580,12 @@ export default {
     }
 
     // 处理粘贴板重定向变更
-    const handleClipboardRedirectChange = (value) => {
+    const handleClipboardRedirectChange = (value, form) => {
+      const target = form || userForm.value
       if (value === '0') {
         // 当粘贴板重定向为否时，自动设置其他两个粘贴板选项为否
-        userForm.value.client_to_server_clipboard = '0'
-        userForm.value.server_to_client_clipboard = '0'
+        target.client_to_server_clipboard = '0'
+        target.server_to_client_clipboard = '0'
       }
     }
 
@@ -1492,11 +1650,13 @@ export default {
       showAddDialog,
       showEditDialog,
       showAddUserDialog,
+      showAddSingleUserDialog,
       showEditUserDialog,
       showChangePasswordDialog,
       unlockUser,
       addUserGroup,
       editUserGroup,
+      addSingleUser,
       deleteUsers,
       deleteUser,
       toggleUserStatus,
@@ -1508,15 +1668,18 @@ export default {
       changePassword,
       addDialogVisible,
       editDialogVisible,
+      addSingleUserDialogVisible,
       addUserDialogVisible,
       editUserDialogVisible,
       changePasswordDialogVisible,
       form,
       userForm,
+      singleUserForm,
       yesNoOptions,
       passwordForm,
       resetForm,
       resetUserForm,
+      resetSingleUserForm,
       resetPasswordForm,
       handleVMGroupSelectVisibleChange,
       batchAddUsers,
