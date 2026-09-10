@@ -730,7 +730,7 @@ export default {
             userStatus: item.disabled === '0' ? t('form.enabled') : t('form.disabled'),
             disabled: item.disabled,
             status: item.status,
-            lastLogin: formatTime(item.last_login),
+            lastLogin: formatTime(item.login_time),
             loginIp: item.login_ip,
             clientType: item.client_type,
             publicGateway: item.public_gateway === '1' ? t('form.yes') : t('form.no'),
