@@ -7,10 +7,11 @@
       <div class="toolbar">
         <div class="toolbar-group">
           <span class="toolbar-label">{{ t('toolbar.templateOperation') }}</span>
-          <el-button class="btn btn-info" @click="showImportDialog = true">{{ t('toolbar.import') }}</el-button>
+          <el-button class="btn btn-info" @click="openImportDialog">{{ t('toolbar.import') }}</el-button>
           <el-button class="btn btn-info" :class="{ 'not-operable': selectedTemplates.length === 0 }" @click="selectedTemplates.length > 0 && (showExportDialog = true)">{{ t('toolbar.export') }}</el-button>
           <el-button class="btn btn-info" :class="{ 'not-operable': selectedTemplates.length === 0 }" @click="selectedTemplates.length > 0 && (showCloneDialog = true)">{{ t('toolbar.clone') }}</el-button>
           <el-button class="btn btn-info" @click="showTemplateDialog = true">{{ t('toolbar.save') }}</el-button>
+          <el-button class="btn btn-info" :class="{ 'not-operable': selectedTemplates.length === 0 }" @click="selectedTemplates.length > 0 && openEditDialog()">{{ t('toolbar.edit') }}</el-button>
           <el-button class="btn btn-danger" :class="{ 'not-operable': selectedTemplates.length === 0 }" @click="selectedTemplates.length > 0 && deleteTemplates()">{{ t('templates.delete') }}</el-button>
         </div>
       </div>
@@ -56,6 +57,7 @@
             {{ formatDisk(scope.row.disk) }}
           </template>
         </el-table-column>
+        <el-table-column prop="remark" :label="t('templates.remark')" align="center"></el-table-column>
       </el-table>
     </div>
 
@@ -168,6 +170,30 @@
       </template>
     </el-dialog>
 
+    <!-- 编辑模板对话框 -->
+    <el-dialog v-model="showEditDialog" :title="t('dialog.editTemplate')" width="480px" draggable :close-on-click-modal="!editing" :close-on-press-escape="!editing" :show-close="!editing">
+      <el-form label-position="left" label-width="auto">
+        <el-form-item :label="t('templates.name')">
+          <el-input v-model="editForm.name" :disabled="editing" @input="handleEditNameInput" />
+        </el-form-item>
+        <el-form-item label="cpus">
+          <el-input-number v-model="editForm.cores" :min="1" :max="999" :disabled="editing" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="mem">
+          <el-select v-model="editForm.memory" :disabled="editing" filterable allow-create default-first-option style="width: 100%">
+            <el-option v-for="option in memorySelectOptions" :key="option" :label="`${option} MB`" :value="option" />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="t('templates.remark')">
+          <el-input v-model="editForm.remark" type="textarea" :disabled="editing" :placeholder="t('form.remarkPlaceholder')" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button :disabled="editing" @click="showEditDialog = false">{{ t('common.cancel') }}</el-button>
+        <el-button class="btn btn-info" :loading="editing" @click="editTemplate">{{ t('common.ok') }}</el-button>
+      </template>
+    </el-dialog>
+
     <!-- 转为模板对话框 -->
     <el-dialog v-model="showTemplateDialog" :title="t('dialog.makeTemplate')" width="480px" draggable :close-on-click-modal="!saving" :close-on-press-escape="!saving" :show-close="!saving">
       <el-form label-position="left" label-width="auto">
@@ -193,7 +219,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, onBeforeUnmount, getCurrentInstance } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount, getCurrentInstance } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
 import { useI18n } from 'vue-i18n'
@@ -227,7 +253,7 @@ export default {
     const selectedTemplates = ref([])
     const loading = ref(true)
     const showImportDialog = ref(false)
-    const importStorage = ref('data')
+    const importStorage = ref('')
     const storages = ref([])
     const storagesLoading = ref(false)
     const importFile = ref(null)
@@ -266,6 +292,22 @@ export default {
       password: '123456',
       rdp_port: 3389,
       storage: ''
+    })
+    const showEditDialog = ref(false)
+    const editing = ref(false)
+    const memoryPresets = [512, 1024, 2048, 4096, 6144, 8192, 10240, 12288, 16384, 32768]
+    const editForm = reactive({
+      name: '',
+      cores: 1,
+      memory: 1024,
+      remark: ''
+    })
+    const memorySelectOptions = computed(() => {
+      const current = Number(editForm.memory)
+      if (current > 0 && !memoryPresets.includes(current)) {
+        return [...memoryPresets, current].sort((a, b) => a - b)
+      }
+      return memoryPresets
     })
     const showTemplateDialog = ref(false)
     const saving = ref(false)
@@ -355,6 +397,10 @@ export default {
 
     const isDataChanged = (oldTemplate, newTemplate) => {
       return oldTemplate.name !== newTemplate.name ||
+             oldTemplate.cpus !== newTemplate.cpus ||
+             oldTemplate.mem !== newTemplate.mem ||
+             oldTemplate.disk !== newTemplate.disk ||
+             oldTemplate.remark !== newTemplate.remark ||
              oldTemplate.status !== newTemplate.status ||
              oldTemplate.description !== newTemplate.description ||
              oldTemplate.createTime !== newTemplate.createTime ||
@@ -681,6 +727,77 @@ export default {
       cloneForm.name = cloneForm.name.replace(/[^a-zA-Z0-9-]/g, '').replace(/^-+/, '')
     }
 
+    const handleEditNameInput = () => {
+      editForm.name = editForm.name.replace(/[^a-zA-Z0-9_-]/g, '').replace(/^[^a-zA-Z0-9]+/, '')
+    }
+
+    const openEditDialog = () => {
+      const vmids = [...selectedTemplates.value]
+      if (vmids.length === 0) {
+        ElMessage.warning(t('dialog.selectTemplateFirst'))
+        return
+      }
+      if (vmids.length > 1) {
+        ElMessage.warning(t('dialog.selectOneTemplate'))
+        return
+      }
+      const template = templateList.value.find(item => item.vmid === vmids[0])
+      if (!template) return
+
+      editForm.name = template.name || ''
+      editForm.cores = Number(template.cpus) || 1
+      // 接口返回的 mem 单位为字节，编辑时按 MB 展示
+      editForm.memory = template.mem ? Math.round(template.mem / 1024 / 1024) : 1024
+      editForm.remark = template.remark || ''
+      showEditDialog.value = true
+    }
+
+    const editTemplate = async () => {
+      const vmids = [...selectedTemplates.value]
+      if (vmids.length === 0) {
+        ElMessage.warning(t('dialog.selectTemplateFirst'))
+        return
+      }
+      if (vmids.length > 1) {
+        ElMessage.warning(t('dialog.selectOneTemplate'))
+        return
+      }
+      if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(editForm.name)) {
+        ElMessage.warning(t('message.invalidTemplateName'))
+        return
+      }
+      const cores = Number(editForm.cores)
+      if (!Number.isInteger(cores) || cores < 1 || cores > 999) {
+        ElMessage.warning(t('message.invalidTemplateCpus'))
+        return
+      }
+      const memory = Number(editForm.memory)
+      if (!Number.isInteger(memory) || memory <= 0) {
+        ElMessage.warning(t('message.enterMemory'))
+        return
+      }
+
+      editing.value = true
+      try {
+        await axios.put(`/vm/template/${vmids[0]}`, {
+          name: editForm.name.trim(),
+          cores,
+          memory,
+          remark: editForm.remark
+        }, { timeout: 15000 })
+
+        ElMessage.success(t('message.editTemplateSuccess'))
+        showEditDialog.value = false
+        await fetchTemplateList()
+        selectedTemplates.value = []
+      } catch (error) {
+        console.error('❌ 编辑模板失败:', error.message)
+        ElMessage.error(t('message.editTemplateFailed', { error: error.message }))
+      } finally {
+        editing.value = false
+      }
+    }
+
     const cloneTemplate = async () => {
       const vmids = [...selectedTemplates.value]
       if (vmids.length === 0) {
@@ -792,6 +909,17 @@ export default {
       }
     }
 
+    const openImportDialog = async () => {
+      importStorage.value = ''
+      showImportDialog.value = true
+      if (storages.value.length === 0) {
+        await fetchStorages()
+      }
+      if (storages.value.length > 0) {
+        importStorage.value = storages.value[0]
+      }
+    }
+
     const handleStorageSelectVisibleChange = async (visible) => {
       if (visible && storages.value.length === 0) {
         await fetchStorages()
@@ -801,6 +929,11 @@ export default {
     const importTemplate = async () => {
       if (!importFile.value) {
         ElMessage.warning(t('dialog.selectFileFirst'))
+        return
+      }
+
+      if (!importStorage.value) {
+        ElMessage.warning(t('dialog.selectStorageFirst'))
         return
       }
 
@@ -903,6 +1036,7 @@ export default {
       handleFileRemove,
       handleFileExceed,
       handleStorageSelectVisibleChange,
+      openImportDialog,
       importTemplate,
       exportTemplate,
       chooseSavePath,
@@ -911,6 +1045,13 @@ export default {
       cloning,
       cloneForm,
       cloneTemplate,
+      showEditDialog,
+      editing,
+      editForm,
+      memorySelectOptions,
+      openEditDialog,
+      handleEditNameInput,
+      editTemplate,
       showTemplateDialog,
       saving,
       templateVmid,
