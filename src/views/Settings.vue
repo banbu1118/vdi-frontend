@@ -235,6 +235,23 @@ import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
 
+// 校验 IPv4 地址：四段数字，每段 0-255，不允许前导 0
+const isValidIPv4 = (value) => {
+  const parts = String(value || '').trim().split('.')
+  if (parts.length !== 4) return false
+  return parts.every(part => /^(0|[1-9]\d{0,2})$/.test(part) && Number(part) <= 255)
+}
+
+// 校验子网掩码：IPv4 格式且二进制为连续的 1 后接连续的 0（如 255.255.255.0）
+const isValidSubnetMask = (value) => {
+  const parts = String(value || '').trim().split('.')
+  if (parts.length !== 4) return false
+  if (!parts.every(part => /^\d{1,3}$/.test(part) && Number(part) <= 255)) return false
+  const mask = parts.reduce((acc, part) => ((acc << 8) | Number(part)) >>> 0, 0)
+  const inverted = (~mask) >>> 0
+  return (inverted & (inverted + 1)) === 0
+}
+
 export default {
   name: 'Settings',
   setup() {
@@ -430,12 +447,50 @@ export default {
       try {
         let requestData
         if (ipConfig.value.mode === 'static') {
+          const address = (ipConfig.value.ipAddress || '').trim()
+          const netmask = (ipConfig.value.subnetMask || '').trim()
+          const gateway = (ipConfig.value.gateway || '').trim()
+          const dns = (ipConfig.value.dns || '').trim()
+
+          if (!address) {
+            ElMessage.warning(t('settings.ipAddressRequired'))
+            return
+          }
+          if (!isValidIPv4(address)) {
+            ElMessage.warning(t('settings.ipAddressInvalid'))
+            return
+          }
+          if (!netmask) {
+            ElMessage.warning(t('settings.subnetMaskRequired'))
+            return
+          }
+          if (!isValidSubnetMask(netmask)) {
+            ElMessage.warning(t('settings.subnetMaskInvalid'))
+            return
+          }
+          if (!gateway) {
+            ElMessage.warning(t('settings.gatewayRequired'))
+            return
+          }
+          if (!isValidIPv4(gateway)) {
+            ElMessage.warning(t('settings.gatewayInvalid'))
+            return
+          }
+          if (!dns) {
+            ElMessage.warning(t('settings.dnsRequired'))
+            return
+          }
+          if (!isValidIPv4(dns)) {
+            ElMessage.warning(t('settings.dnsInvalid'))
+            return
+          }
+
           requestData = {
             ip_mode: 'static',
-            address: ipConfig.value.ipAddress,
-            netmask: ipConfig.value.subnetMask,
-            gateway: ipConfig.value.gateway,
-            dns: ipConfig.value.dns
+            address,
+            netmask,
+            gateway,
+            dns
           }
         } else {
           requestData = {
