@@ -481,6 +481,7 @@ export default {
     backupDoneChoosePath: 'バックアップが完了しました。保存先を選択してください',
     chooseSavePath: '保存',
     deleteTemplateFailed: 'テンプレートの削除に失敗しました: {error}',
+    someTemplatesDeleteFailed: '一部のテンプレートの削除に失敗しました（{failed}/{total}）',
     confirmDeleteGroups: '選択した {count} 個のグループを削除してもよろしいですか？',
     confirmDeleteGroup: 'グループ "{name}" を削除してもよろしいですか？',
     confirmDeleteUserGroups: '選択した {count} 個のユーザーグループを削除してもよろしいですか？',

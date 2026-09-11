@@ -481,6 +481,7 @@ export default {
     backupDoneChoosePath: 'Backup complete. Please choose a save location',
     chooseSavePath: 'Save',
     deleteTemplateFailed: 'Failed to delete template: {error}',
+    someTemplatesDeleteFailed: 'Some templates failed to be deleted ({failed}/{total})',
     confirmDeleteGroups: 'Are you sure you want to delete the selected {count} VM groups?',
     confirmDeleteGroup: 'Are you sure you want to delete VM group "{name}"?',
     confirmDeleteUserGroups: 'Are you sure you want to delete the selected {count} user groups?',

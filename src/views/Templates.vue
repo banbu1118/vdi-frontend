@@ -450,25 +450,33 @@ export default {
             type: 'danger'
           }
         )
-        
-        for (const vmid of selectedTemplates.value) {
-          try {
-            await axios.delete(`/vm/template/${vmid}`, { timeout: 15000 })
-          } catch (error) {
-            console.error(`❌ 删除模板 ${vmid} 失败:`, error.message)
-            ElMessage.error(t('dialog.deleteTemplateFailed', { error: error.message }))
-          }
-        }
-        
-        ElMessage.success(t('dialog.templateDeleteSuccess'))
-        selectedTemplates.value = []
-        await fetchTemplateList()
-        
       } catch (error) {
-        if (error !== 'cancel') {
-          console.error('❌ 删除模板失败:', error.message)
-          ElMessage.error(t('dialog.deleteTemplateFailed', { error: error.message }))
+        // 用户点击取消，不做任何提示
+        return
+      }
+
+      const vmids = [...selectedTemplates.value]
+      let failedCount = 0
+      let lastErrorMessage = ''
+      for (const vmid of vmids) {
+        try {
+          await axios.delete(`/vm/template/${vmid}`, { timeout: 15000 })
+        } catch (error) {
+          failedCount++
+          lastErrorMessage = error.message
+          console.error(`❌ 删除模板 ${vmid} 失败:`, error.message)
         }
+      }
+
+      selectedTemplates.value = []
+      await fetchTemplateList()
+
+      if (failedCount === 0) {
+        ElMessage.success(t('dialog.templateDeleteSuccess'))
+      } else if (failedCount === vmids.length) {
+        ElMessage.error(t('dialog.deleteTemplateFailed', { error: lastErrorMessage }))
+      } else {
+        ElMessage.error(t('dialog.someTemplatesDeleteFailed', { failed: failedCount, total: vmids.length }))
       }
     }
     

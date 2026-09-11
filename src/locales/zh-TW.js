@@ -483,6 +483,7 @@ export default {
     backupDoneChoosePath: '備份已完成，請選擇儲存位置',
     chooseSavePath: '儲存',
     deleteTemplateFailed: '刪除模板失敗: {error}',
+    someTemplatesDeleteFailed: '部分模板刪除失敗（{failed}/{total}）',
     confirmDeleteGroups: '確定要刪除選中的 {count} 個虛擬機組嗎？',
     confirmDeleteGroup: '確定要刪除虛擬機組 "{name}" 嗎？',
     confirmDeleteUserGroups: '確定要刪除選中的 {count} 個用戶組嗎？',

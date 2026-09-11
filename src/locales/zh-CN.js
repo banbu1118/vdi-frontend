@@ -487,6 +487,7 @@ export default {
     backupDoneChoosePath: '备份已完成，请选择保存位置',
     chooseSavePath: '保存',
     deleteTemplateFailed: '删除模板失败：{error}',
+    someTemplatesDeleteFailed: '部分模板删除失败（{failed}/{total}）',
     confirmDeleteGroups: '确定要删除选中的 {count} 个虚拟机组吗？',
     confirmDeleteGroup: '确定要删除虚拟机组 "{name}" 吗？',
     confirmDeleteUserGroups: '确定要删除选中的 {count} 个用户组吗？',
