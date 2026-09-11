@@ -290,6 +290,7 @@
           size="large"
           maxlength="50"
           show-word-limit
+          @input="handleVmNameInput"
         />
       </div>
       
@@ -981,6 +982,11 @@ export default {
       }
     }
 
+    // 限制虚拟机名称只能包含字母、数字、点和横杠，且以字母或数字开头
+    const handleVmNameInput = () => {
+      newVMName.value = newVMName.value.replace(/[^a-zA-Z0-9.\-]/g, '').replace(/^[^a-zA-Z0-9]+/, '')
+    }
+
     const showEditNameDialog = () => {
       const selectedVMID = selectedVMs.value[0]
       const vm = vmList.value.find(v => Number(v.vmid) === Number(selectedVMID))
@@ -999,8 +1005,8 @@ export default {
         return
       }
       
-      // 验证名称格式：只允许字母、数字和连字符，且必须以字母或数字开头
-      const nameRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]*$/
+      // 验证名称格式：只允许字母、数字、点和横杠，必须以字母或数字开头，且点和横杠不能连续出现
+      const nameRegex = /^[a-zA-Z0-9]+(?:[.\-][a-zA-Z0-9]+)*$/
       if (!nameRegex.test(vmName)) {
         ElMessage.warning(t('message.vmNameInvalid'))
         return
@@ -1405,6 +1411,7 @@ export default {
       selectedUsername,
       renameDialogVisible,
       newVMName,
+      handleVmNameInput,
       staticIPDialogVisible,
       staticIPForm,
       copyPassword,

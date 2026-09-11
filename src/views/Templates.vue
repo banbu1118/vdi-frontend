@@ -730,13 +730,13 @@ export default {
       ElMessage.warning(t('dialog.onlyOneFile'))
     }
 
-    // 限制虚拟机名称只能为数字、字母和英文横杠，且以数字或字母开头
+    // 限制克隆模板名称只能包含字母、数字、点和横杠，且以字母或数字开头
     const handleCloneNameInput = () => {
-      cloneForm.name = cloneForm.name.replace(/[^a-zA-Z0-9-]/g, '').replace(/^-+/, '')
+      cloneForm.name = cloneForm.name.replace(/[^a-zA-Z0-9.\-]/g, '').replace(/^[^a-zA-Z0-9]+/, '')
     }
 
     const handleEditNameInput = () => {
-      editForm.name = editForm.name.replace(/[^a-zA-Z0-9_-]/g, '').replace(/^[^a-zA-Z0-9]+/, '')
+      editForm.name = editForm.name.replace(/[^a-zA-Z0-9.\-]/g, '').replace(/^[^a-zA-Z0-9]+/, '')
     }
 
     const openEditDialog = () => {
@@ -770,7 +770,7 @@ export default {
         ElMessage.warning(t('dialog.selectOneTemplate'))
         return
       }
-      if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(editForm.name)) {
+      if (!/^[a-zA-Z0-9]+(?:[.\-][a-zA-Z0-9]+)*$/.test(editForm.name)) {
         ElMessage.warning(t('message.invalidTemplateName'))
         return
       }
@@ -820,8 +820,8 @@ export default {
         ElMessage.warning(t('message.enterVmName'))
         return
       }
-      if (!/^[a-zA-Z0-9][a-zA-Z0-9-]*$/.test(cloneForm.name)) {
-        ElMessage.warning(t('message.invalidVmName'))
+      if (!/^[a-zA-Z0-9]+(?:[.\-][a-zA-Z0-9]+)*$/.test(cloneForm.name)) {
+        ElMessage.warning(t('message.invalidTemplateName'))
         return
       }
       if (!cloneForm.storage) {
